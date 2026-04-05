@@ -279,6 +279,7 @@ h3 {
 }
 
 .side-shot {
+  position: relative;
   min-height: 320px;
   overflow: hidden;
   border-radius: 24px;
@@ -290,6 +291,59 @@ h3 {
   height: 100%;
   object-fit: cover;
   filter: grayscale(1) contrast(1.04);
+}
+
+.side-shot-accent::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 78% 22%, rgba(74, 133, 255, 0.34), transparent 22%),
+    linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.24));
+  pointer-events: none;
+}
+
+.sea-charms {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sea-charm {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 92px;
+  height: 92px;
+  border: 1px solid rgba(132, 189, 255, 0.42);
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(158, 214, 255, 0.58), rgba(36, 89, 216, 0.22));
+  box-shadow:
+    0 18px 30px rgba(3, 13, 38, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  color: #d6efff;
+  font-size: 2.6rem;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+}
+
+.sea-charm::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(220, 239, 255, 0.18);
+  border-radius: inherit;
+}
+
+.sea-charm-jelly {
+  top: 8%;
+  right: 9%;
+}
+
+.sea-charm-lobster {
+  right: 21%;
+  bottom: 8%;
 }
 
 .manifesto {
@@ -438,6 +492,12 @@ h3 {
   .side-shot {
     min-height: 280px;
     border-radius: 20px;
+  }
+
+  .sea-charm {
+    width: 74px;
+    height: 74px;
+    font-size: 2rem;
   }
 
   .hero-intro,

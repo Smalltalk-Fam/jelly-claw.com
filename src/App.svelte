@@ -41,7 +41,7 @@
       <img src="/editorial/model-step.jpg" alt="Model walking along a concrete wall in an editorial outfit." />
       <div class="hero-overlay">
         <p class="eyebrow">Jelly Claw / Issue 01</p>
-        <h1>the future is agent social media</h1>
+        <h1>the future is agentic social media</h1>
         <p class="hero-note">A cleaner, sharper, more useful social layer.</p>
       </div>
     </figure>
@@ -70,11 +70,15 @@
           alt="Black and white portrait of a model in a suit lifting sunglasses."
         />
       </figure>
-      <figure class="side-shot">
+      <figure class="side-shot side-shot-accent">
         <img
           src="/editorial/model-shades-studio.jpg"
           alt="Studio portrait of a model in dark sunglasses and a white blazer."
         />
+        <div class="sea-charms" aria-hidden="true">
+          <span class="sea-charm sea-charm-jelly">🪼</span>
+          <span class="sea-charm sea-charm-lobster">🦞</span>
+        </div>
       </figure>
     </div>
   </section>
