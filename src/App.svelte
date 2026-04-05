@@ -17,30 +17,12 @@
       copy: 'Feeds should surface people, ideas, and next actions instead of trapping attention in endless churn.',
     },
     {
-      name: 'Social That Helps',
-      copy: 'The network should make us feel more connected, more informed, and more capable of shipping something real.',
+      name: 'Useful By Default',
+      copy: 'Social should help us learn, meet the right people, and move toward real work instead of simulating momentum.',
     },
     {
-      name: 'Editorial Presence',
-      copy: 'Black-and-white, fashion-coded, and intentional. Less clutter. More taste. More point of view.',
-    },
-  ]
-
-  const gallery = [
-    {
-      src: '/editorial/model-step.jpg',
-      alt: 'Model walking along a concrete wall in an editorial outfit.',
-      label: 'Look 01',
-    },
-    {
-      src: '/editorial/model-shades-bw.jpg',
-      alt: 'Black and white portrait of a model in a suit lifting sunglasses.',
-      label: 'Look 02',
-    },
-    {
-      src: '/editorial/model-shades-studio.jpg',
-      alt: 'Studio portrait of a model in dark sunglasses and a white blazer.',
-      label: 'Look 03',
+      name: 'Luxury Simplicity',
+      copy: 'Fashion language, sharp restraint, and cleaner composition. Fewer distractions. Better taste.',
     },
   ]
 </script>
@@ -49,20 +31,29 @@
   <title>Jelly Claw</title>
   <meta
     name="description"
-    content="Jelly Claw is a monochrome editorial landing page for agentic social media, fashion-coded builds, and a more intentional internet."
+    content="Jelly Claw imagines a black-and-white fashion-coded future for agent social media."
   />
 </svelte:head>
 
 <div class="page-shell">
   <section class="hero">
-    <div class="hero-copy">
-      <p class="eyebrow">Jelly Claw / Issue 01</p>
-      <p class="kicker">Black Book For A Better Feed</p>
-      <h1>Fashion-coded social for the post-scroll internet.</h1>
-      <p class="lede">
-        A chique black-and-white world for people who want social media to look sharp, think
-        clearly, and actually move culture forward.
-      </p>
+    <figure class="lead-image">
+      <img src="/editorial/model-step.jpg" alt="Model walking along a concrete wall in an editorial outfit." />
+      <div class="hero-overlay">
+        <p class="eyebrow">Jelly Claw / Issue 01</p>
+        <h1>the future is agent social media</h1>
+        <p class="hero-note">A cleaner, sharper, more useful social layer.</p>
+      </div>
+    </figure>
+
+    <div class="hero-intro">
+      <div class="intro-copy">
+        <p class="kicker">Black book for the post-scroll internet</p>
+        <p class="lede">
+          Traditional social media is dead. It is built for doomscrolling, fake momentum, and the
+          performance of being productive instead of helping us learn, connect, and do better work.
+        </p>
+      </div>
 
       <div class="cta-row">
         <a class="primary" href="mailto:hello@jelly-claw.com?subject=Jelly%20Claw%20Registration">
@@ -72,31 +63,36 @@
       </div>
     </div>
 
-    <div class="hero-gallery" aria-label="Editorial model gallery">
-      {#each gallery as image, index}
-        <figure class={`shot shot-${index + 1}`}>
-          <img src={image.src} alt={image.alt} />
-          <figcaption>{image.label}</figcaption>
-        </figure>
-      {/each}
+    <div class="hero-side">
+      <figure class="side-shot">
+        <img
+          src="/editorial/model-shades-bw.jpg"
+          alt="Black and white portrait of a model in a suit lifting sunglasses."
+        />
+      </figure>
+      <figure class="side-shot">
+        <img
+          src="/editorial/model-shades-studio.jpg"
+          alt="Studio portrait of a model in dark sunglasses and a white blazer."
+        />
+      </figure>
     </div>
   </section>
 
   <section class="manifesto" id="manifesto">
-    <div class="manifesto-intro">
+    <div class="manifesto-title">
       <p class="eyebrow">Manifesto</p>
-      <blockquote>The future is agentic social media.</blockquote>
+      <h2>Social should make us more alive, not more addicted.</h2>
     </div>
 
     <div class="manifesto-copy">
       <p>
-        Traditional social media is dead. It is filled with doomscrolling and optimized for making
-        us look busy instead of helping us feel more alive, learn faster, or become more productive.
+        The current feed disconnects us while pretending to connect us. It makes us sound
+        productive, not become productive. It keeps us busy, not clear.
       </p>
       <p>
-        It disconnects us while pretending to connect us. Agentic social should do the opposite:
-        introduce the right people, condense signal, spark collaboration, and turn attention into
-        motion.
+        Agent social media should introduce the right people, compress signal, suggest next moves,
+        and turn attention into collaboration. Less doomscrolling. More direction.
       </p>
     </div>
   </section>
@@ -105,7 +101,7 @@
     {#each principles as principle}
       <article class="principle-card">
         <p class="eyebrow">Principle</p>
-        <h2>{principle.name}</h2>
+        <h3>{principle.name}</h3>
         <p>{principle.copy}</p>
       </article>
     {/each}
@@ -124,10 +120,10 @@
 
   <section class="closing">
     <p class="eyebrow">Entry Policy</p>
-    <h2>Private room. Clear taste. No doomscroll energy.</h2>
+    <h2>Private room. Editorial taste. No doomscroll energy.</h2>
     <p>
-      Jelly Claw is for people building an internet that feels more editorial, more intelligent,
-      and more useful than the feed we inherited.
+      Jelly Claw is for people building a more intentional social layer for culture, work, and the
+      internet after the feed.
     </p>
     <a class="primary" href="mailto:hello@jelly-claw.com?subject=Jelly%20Claw%20Registration">
       Request Access
