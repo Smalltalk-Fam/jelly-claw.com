@@ -1,10 +1,16 @@
 <script>
 	import { onMount } from 'svelte';
 
-	const SIGNAL_BASE = 'wss://signal.jelly-claw.com';
+	// Use local signaling server in dev, production in deployed builds
+	const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+	const SIGNAL_BASE = isDev ? 'ws://localhost:8787' : 'wss://signal.jelly-claw.com';
 
 	let { data } = $props();
 	const callId = data.callId;
+
+	// Determine role: ?role=host makes this tab the host (creates offer)
+	// Default is guest (receives offer). This lets browser-to-browser calls work.
+	let myRole = $state('guest');
 
 	// --- State ---
 	let status = $state('connecting'); // connecting | waiting | connected | ended | error
@@ -44,6 +50,12 @@
 			username = 'guest';
 		}
 
+		// Check for ?role=host query param
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.get('role') === 'host') {
+			myRole = 'host';
+		}
+
 		startCall();
 
 		return () => {
@@ -81,7 +93,7 @@
 		}
 
 		ws.onopen = () => {
-			ws.send(JSON.stringify({ type: 'join', role: 'guest' }));
+			ws.send(JSON.stringify({ type: 'join', role: myRole }));
 			status = 'waiting';
 		};
 
@@ -98,8 +110,24 @@
 					await setupPeerConnection(msg.iceServers);
 					break;
 
+				case 'peer-joined':
+					// Other peer joined — if we're the host, create and send an offer
+					if (myRole === 'host' && pc) {
+						const offer = await pc.createOffer();
+						await pc.setLocalDescription(offer);
+						ws.send(JSON.stringify({ type: 'offer', sdp: offer.sdp }));
+					}
+					break;
+
 				case 'offer':
 					await handleOffer(msg);
+					break;
+
+				case 'answer':
+					// Host receives the guest's answer
+					if (pc && msg.sdp) {
+						await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: msg.sdp }));
+					}
 					break;
 
 				case 'ice-candidate':
@@ -189,7 +217,7 @@
 		}
 
 		try {
-			await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+			await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: msg.sdp }));
 			const answer = await pc.createAnswer();
 			await pc.setLocalDescription(answer);
 
@@ -197,7 +225,7 @@
 				ws.send(
 					JSON.stringify({
 						type: 'answer',
-						sdp: pc.localDescription,
+						sdp: answer.sdp,
 					})
 				);
 			}
@@ -277,15 +305,28 @@
 		remoteStream = null;
 	}
 
-	// Bind video elements to streams
+	// Svelte actions to bind video elements and set srcObject immediately
+	function bindLocalVideo(el) {
+		localVideoEl = el;
+		if (localStream) el.srcObject = localStream;
+		return { destroy() { localVideoEl = null; } };
+	}
+
+	function bindRemoteVideo(el) {
+		remoteVideoEl = el;
+		if (remoteStream) el.srcObject = remoteStream;
+		return { destroy() { remoteVideoEl = null; } };
+	}
+
+	// Also react to stream changes after mount
 	$effect(() => {
-		if (localVideoEl && localStream) {
+		if (localVideoEl && localStream && localVideoEl.srcObject !== localStream) {
 			localVideoEl.srcObject = localStream;
 		}
 	});
 
 	$effect(() => {
-		if (remoteVideoEl && remoteStream) {
+		if (remoteVideoEl && remoteStream && remoteVideoEl.srcObject !== remoteStream) {
 			remoteVideoEl.srcObject = remoteStream;
 		}
 	});
@@ -303,7 +344,7 @@
 		{:else if status === 'connecting'}
 			<span class="status-text">Connecting...</span>
 		{:else if status === 'waiting'}
-			<span class="status-text">Waiting for host...</span>
+			<span class="status-text">{myRole === 'host' ? 'Waiting for guest...' : 'Waiting for host...'}</span>
 		{:else if status === 'ended'}
 			<span class="status-text ended-text">Call ended</span>
 		{:else if status === 'error'}
@@ -333,9 +374,10 @@
 			</div>
 		{:else}
 			<!-- Remote video (host) -->
+			<!-- svelte-ignore binding_property_non_reactive -->
 			<video
 				class="remote-video"
-				bind:this={remoteVideoEl}
+				use:bindRemoteVideo
 				autoplay
 				playsinline
 			></video>
@@ -343,7 +385,7 @@
 			{#if status === 'waiting'}
 				<div class="waiting-overlay">
 					<div class="pulse-ring"></div>
-					<p>Waiting for host to join...</p>
+					<p>{myRole === 'host' ? 'Waiting for guest to join...' : 'Waiting for host to join...'}</p>
 				</div>
 			{/if}
 		{/if}
@@ -353,7 +395,7 @@
 			<div class="pip-container" class:camera-off={isCameraOff}>
 				<video
 					class="local-video"
-					bind:this={localVideoEl}
+					use:bindLocalVideo
 					autoplay
 					playsinline
 					muted

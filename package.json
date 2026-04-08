@@ -13,5 +13,8 @@
     "@sveltejs/kit": "^2.21.0",
     "svelte": "^5.53.12",
     "vite": "^8.0.1"
+  },
+  "dependencies": {
+    "@sveltejs/adapter-auto": "^7.0.1"
   }
 }
