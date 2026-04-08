@@ -15,6 +15,7 @@
 	// --- State ---
 	let status = $state('connecting'); // connecting | waiting | connected | ended | error
 	let errorMessage = $state('');
+	let debugLog = $state([]);
 	let isMuted = $state(false);
 	let isCameraOff = $state(false);
 	let isRecording = $state(false);
@@ -35,8 +36,13 @@
 	let pc = null;
 	/** @type {ReturnType<typeof setInterval> | null} */
 	let timerInterval = null;
-	let pcReady = false; // true once setupPeerConnection completes
-	let pendingPeerJoined = false; // queued peer-joined while PC was setting up
+	let pcReady = false;
+	let pendingPeerJoined = false;
+
+	function dbg(msg) {
+		console.log(`[call:${myRole}] ${msg}`);
+		debugLog = [...debugLog.slice(-15), `${myRole}: ${msg}`];
+	}
 
 	let formattedTime = $derived(() => {
 		const m = Math.floor(elapsedSeconds / 60);
@@ -98,6 +104,7 @@
 		}
 
 		ws.onopen = () => {
+			dbg('ws connected, sending join');
 			ws.send(JSON.stringify({ type: 'join', role: myRole }));
 			status = 'waiting';
 		};
@@ -112,30 +119,35 @@
 
 			switch (msg.type) {
 				case 'turn-credentials':
+					dbg('got turn credentials, setting up PC');
 					await setupPeerConnection(msg.iceServers);
-					// If peer-joined came in while we were setting up, send offer now
 					if (pendingPeerJoined) {
 						pendingPeerJoined = false;
+						dbg('sending queued offer');
 						await sendOffer();
 					}
 					break;
 
 				case 'peer-joined':
-					// Other peer joined — if we're the host, create and send an offer
+					dbg(`peer-joined: ${msg.role}, myRole=${myRole}, pcReady=${pcReady}`);
 					if (myRole === 'host') {
 						if (pcReady) {
+							dbg('sending offer now');
 							await sendOffer();
 						} else {
+							dbg('PC not ready, queueing offer');
 							pendingPeerJoined = true;
 						}
 					}
 					break;
 
 				case 'offer':
+					dbg('received offer, creating answer');
 					await handleOffer(msg);
 					break;
 
 				case 'answer':
+					dbg('received answer, setting remote desc');
 					if (pc && msg.sdp) {
 						await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: msg.sdp }));
 					}
@@ -221,6 +233,7 @@
 		};
 
 		pc.onconnectionstatechange = () => {
+			dbg(`PC state: ${pc.connectionState}`);
 			if (pc.connectionState === 'connected') {
 				status = 'connected';
 				startTimer();
@@ -493,9 +506,37 @@
 			</button>
 		</div>
 	{/if}
+
+	<!-- Debug log -->
+	{#if debugLog.length > 0}
+		<div class="debug-panel">
+			{#each debugLog as line}
+				<div class="debug-line">{line}</div>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>
+	.debug-panel {
+		position: absolute;
+		bottom: 100px;
+		left: 8px;
+		right: 8px;
+		max-height: 120px;
+		overflow-y: auto;
+		background: rgba(0,0,0,0.85);
+		border: 1px solid rgba(255,255,255,0.1);
+		border-radius: 6px;
+		padding: 6px;
+		font-family: monospace;
+		font-size: 9px;
+		z-index: 100;
+	}
+	.debug-line {
+		color: #0f0;
+		line-height: 1.4;
+	}
 	.call-page {
 		position: fixed;
 		inset: 0;
