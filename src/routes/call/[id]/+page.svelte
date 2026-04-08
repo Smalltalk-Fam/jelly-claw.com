@@ -23,6 +23,8 @@
 
 	let localStream = $state(null);
 	let remoteStream = $state(null);
+	let hasLocalStream = $state(false);
+	let hasRemoteStream = $state(false);
 
 	let localVideoEl;
 	let remoteVideoEl;
@@ -67,6 +69,7 @@
 		// Get local media
 		try {
 			localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+			hasLocalStream = true;
 		} catch (err) {
 			if (err.name === 'NotAllowedError') {
 				status = 'error';
@@ -180,6 +183,9 @@
 				remoteStream = new MediaStream();
 			}
 			remoteStream.addTrack(event.track);
+			hasRemoteStream = true;
+			// Re-bind in case the element already exists
+			if (remoteVideoEl) remoteVideoEl.srcObject = remoteStream;
 		};
 
 		// Send ICE candidates to peer
@@ -300,9 +306,11 @@
 				track.stop();
 			}
 			localStream = null;
+			hasLocalStream = false;
 		}
 
 		remoteStream = null;
+		hasRemoteStream = false;
 	}
 
 	// Svelte actions to bind video elements and set srcObject immediately
@@ -391,7 +399,7 @@
 		{/if}
 
 		<!-- Local video (PiP) -->
-		{#if localStream && status !== 'ended' && status !== 'error'}
+		{#if hasLocalStream && status !== 'ended' && status !== 'error'}
 			<div class="pip-container" class:camera-off={isCameraOff}>
 				<video
 					class="local-video"
