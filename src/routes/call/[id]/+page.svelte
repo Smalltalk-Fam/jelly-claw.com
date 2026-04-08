@@ -35,6 +35,8 @@
 	let pc = null;
 	/** @type {ReturnType<typeof setInterval> | null} */
 	let timerInterval = null;
+	let pcReady = false; // true once setupPeerConnection completes
+	let pendingPeerJoined = false; // queued peer-joined while PC was setting up
 
 	let formattedTime = $derived(() => {
 		const m = Math.floor(elapsedSeconds / 60);
@@ -111,14 +113,21 @@
 			switch (msg.type) {
 				case 'turn-credentials':
 					await setupPeerConnection(msg.iceServers);
+					// If peer-joined came in while we were setting up, send offer now
+					if (pendingPeerJoined) {
+						pendingPeerJoined = false;
+						await sendOffer();
+					}
 					break;
 
 				case 'peer-joined':
 					// Other peer joined — if we're the host, create and send an offer
-					if (myRole === 'host' && pc) {
-						const offer = await pc.createOffer();
-						await pc.setLocalDescription(offer);
-						ws.send(JSON.stringify({ type: 'offer', sdp: offer.sdp }));
+					if (myRole === 'host') {
+						if (pcReady) {
+							await sendOffer();
+						} else {
+							pendingPeerJoined = true;
+						}
 					}
 					break;
 
@@ -127,7 +136,6 @@
 					break;
 
 				case 'answer':
-					// Host receives the guest's answer
 					if (pc && msg.sdp) {
 						await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: msg.sdp }));
 					}
@@ -163,6 +171,17 @@
 		};
 	}
 
+	async function sendOffer() {
+		if (!pc || !ws || ws.readyState !== WebSocket.OPEN) return;
+		try {
+			const offer = await pc.createOffer();
+			await pc.setLocalDescription(offer);
+			ws.send(JSON.stringify({ type: 'offer', sdp: offer.sdp }));
+		} catch (err) {
+			console.error('Failed to create offer:', err);
+		}
+	}
+
 	async function setupPeerConnection(iceServers) {
 		const config = {
 			iceServers: iceServers || [{ urls: 'stun:stun.l.google.com:19302' }],
@@ -170,7 +189,7 @@
 
 		pc = new RTCPeerConnection(config);
 
-		// Add local tracks
+		// Add local tracks — MUST be done before creating offer
 		if (localStream) {
 			for (const track of localStream.getTracks()) {
 				pc.addTrack(track, localStream);
@@ -184,9 +203,10 @@
 			}
 			remoteStream.addTrack(event.track);
 			hasRemoteStream = true;
-			// Re-bind in case the element already exists
 			if (remoteVideoEl) remoteVideoEl.srcObject = remoteStream;
 		};
+
+		pcReady = true;
 
 		// Send ICE candidates to peer
 		pc.onicecandidate = (event) => {
