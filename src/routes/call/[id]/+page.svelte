@@ -39,6 +39,7 @@
 	let timerInterval = null;
 	let pcReady = false;
 	let pendingPeerJoined = false;
+	let keepaliveInterval = null;
 
 	function dbg(msg) {
 		console.log(`[call:${myRole}] ${msg}`);
@@ -113,6 +114,13 @@
 			dbg('ws connected, sending join');
 			ws.send(JSON.stringify({ type: 'join', role: myRole }));
 			status = 'waiting';
+			// Keepalive ping every 15s to prevent idle timeout
+			if (keepaliveInterval) clearInterval(keepaliveInterval);
+			keepaliveInterval = setInterval(() => {
+				if (ws && ws.readyState === WebSocket.OPEN) {
+					ws.send(JSON.stringify({ type: 'ping' }));
+				}
+			}, 15000);
 		};
 
 		ws.onmessage = async (event) => {
@@ -162,6 +170,9 @@
 				case 'ice-candidate':
 					await handleIceCandidate(msg);
 					break;
+
+				case 'pong':
+					break; // keepalive response, ignore
 
 				case 'peer-left':
 					status = 'ended';
@@ -245,10 +256,14 @@
 			if (pc.connectionState === 'connected') {
 				status = 'connected';
 				startTimer();
-			} else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
-				if (status === 'connected') {
-					status = 'ended';
-					stopTimer();
+			} else if (pc.connectionState === 'disconnected') {
+				// Don't end the call — WebRTC often recovers from disconnected
+				dbg('connection interrupted, waiting for recovery...');
+			} else if (pc.connectionState === 'failed') {
+				// Try ICE restart before giving up
+				dbg('connection failed, attempting ICE restart');
+				if (pc && ws && ws.readyState === WebSocket.OPEN) {
+					pc.restartIce();
 				} else {
 					status = 'error';
 					errorMessage = 'Connection failed. Please try again.';
@@ -331,6 +346,7 @@
 
 	function cleanup() {
 		stopTimer();
+		if (keepaliveInterval) { clearInterval(keepaliveInterval); keepaliveInterval = null; }
 
 		if (ws) {
 			ws.close();
