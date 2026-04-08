@@ -15,7 +15,8 @@
 	// --- State ---
 	let status = $state('connecting'); // connecting | waiting | connected | ended | error
 	let errorMessage = $state('');
-	let debugLog = $state([]);
+	let debugLog = $state(['init']);
+	let showDebug = $state(false);
 	let isMuted = $state(false);
 	let isCameraOff = $state(false);
 	let isRecording = $state(false);
@@ -74,10 +75,12 @@
 	});
 
 	async function startCall() {
+		dbg(`signal url: ${SIGNAL_BASE}`);
 		// Get local media
 		try {
 			localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
 			hasLocalStream = true;
+			dbg('got local media');
 		} catch (err) {
 			if (err.name === 'NotAllowedError') {
 				status = 'error';
@@ -95,9 +98,12 @@
 		}
 
 		// Connect to signaling server
+		const wsUrl = `${SIGNAL_BASE}/call/${callId}`;
+		dbg(`connecting ws: ${wsUrl}`);
 		try {
-			ws = new WebSocket(`${SIGNAL_BASE}/call/${callId}`);
-		} catch {
+			ws = new WebSocket(wsUrl);
+		} catch (err) {
+			dbg(`ws constructor error: ${err.message}`);
 			status = 'error';
 			errorMessage = 'Failed to connect to signaling server.';
 			return;
@@ -168,14 +174,16 @@
 			}
 		};
 
-		ws.onerror = () => {
+		ws.onerror = (e) => {
+			dbg(`ws error: ${e.type}`);
 			if (status === 'connecting') {
 				status = 'error';
 				errorMessage = 'Connection to signaling server failed.';
 			}
 		};
 
-		ws.onclose = () => {
+		ws.onclose = (e) => {
+			dbg(`ws closed: code=${e.code} reason=${e.reason}`);
 			if (status === 'connected' || status === 'waiting') {
 				status = 'ended';
 				stopTimer();
@@ -507,8 +515,20 @@
 		</div>
 	{/if}
 
-	<!-- Debug log -->
-	{#if debugLog.length > 0}
+	<!-- Top-left toolbar: debug toggle + copy link -->
+	<div class="toolbar-left">
+		<button class="toolbar-btn" onclick={() => showDebug = !showDebug} title="Debug log">
+			{showDebug ? '✕' : '☰'}
+		</button>
+		<button class="toolbar-btn" onclick={() => {
+			navigator.clipboard?.writeText(window.location.href);
+			dbg('link copied');
+		}} title="Copy call link">
+			🔗
+		</button>
+	</div>
+
+	{#if showDebug}
 		<div class="debug-panel">
 			{#each debugLog as line}
 				<div class="debug-line">{line}</div>
@@ -518,14 +538,39 @@
 </div>
 
 <style>
+	.toolbar-left {
+		position: absolute;
+		top: 12px;
+		left: 12px;
+		display: flex;
+		gap: 6px;
+		z-index: 101;
+	}
+	.toolbar-btn {
+		width: 32px;
+		height: 32px;
+		border-radius: 8px;
+		border: 1px solid rgba(255,255,255,0.15);
+		background: rgba(0,0,0,0.6);
+		color: #f4f1ea;
+		font-size: 14px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0;
+	}
+	.toolbar-btn:hover {
+		background: rgba(255,255,255,0.1);
+	}
 	.debug-panel {
 		position: absolute;
-		bottom: 100px;
+		top: 50px;
 		left: 8px;
-		right: 8px;
-		max-height: 120px;
+		width: 240px;
+		max-height: 160px;
 		overflow-y: auto;
-		background: rgba(0,0,0,0.85);
+		background: rgba(0,0,0,0.9);
 		border: 1px solid rgba(255,255,255,0.1);
 		border-radius: 6px;
 		padding: 6px;
