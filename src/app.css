@@ -293,6 +293,28 @@ h3 {
   filter: grayscale(1) contrast(1.04);
 }
 
+.side-heading {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-family: 'Forum', serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: rgba(244, 241, 234, 0.8);
+  letter-spacing: 0.03em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  margin: 0;
+  z-index: 2;
+}
+
+.hero-heading {
+  position: static;
+  margin-top: 1.2rem;
+  text-shadow: none;
+  font-size: 1.1rem;
+  color: rgba(244, 241, 234, 0.5);
+}
+
 .side-shot-accent::after {
   content: '';
   position: absolute;
@@ -303,48 +325,7 @@ h3 {
   pointer-events: none;
 }
 
-.sea-charms {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.sea-charm {
-  position: absolute;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 92px;
-  height: 92px;
-  border: 1px solid rgba(132, 189, 255, 0.42);
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, rgba(158, 214, 255, 0.58), rgba(36, 89, 216, 0.22));
-  box-shadow:
-    0 18px 30px rgba(3, 13, 38, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  color: #d6efff;
-  font-size: 2.6rem;
-  line-height: 1;
-  backdrop-filter: blur(8px);
-}
-
-.sea-charm::before {
-  content: '';
-  position: absolute;
-  inset: 8px;
-  border: 1px solid rgba(220, 239, 255, 0.18);
-  border-radius: inherit;
-}
-
-.sea-charm-jelly {
-  top: 8%;
-  right: 9%;
-}
-
-.sea-charm-lobster {
-  right: 21%;
-  bottom: 8%;
-}
+/* sea-charms removed */
 
 .manifesto {
   display: grid;

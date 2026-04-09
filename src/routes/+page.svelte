@@ -254,6 +254,7 @@
         <p class="eyebrow">Jelly Claw / Issue 01</p>
         <h1>the future is agentic social media</h1>
         <p class="hero-note">A cleaner, sharper, more useful social layer.</p>
+        <p class="side-heading hero-heading">feel productive</p>
       </div>
     </figure>
 
@@ -280,16 +281,14 @@
           src="/editorial/model-shades-bw.jpg"
           alt="Black and white portrait of a model in a suit lifting sunglasses."
         />
+        <p class="side-heading">feel alive</p>
       </figure>
       <figure class="side-shot side-shot-accent">
         <img
           src="/editorial/model-shades-studio.jpg"
           alt="Studio portrait of a model in dark sunglasses and a white blazer."
         />
-        <div class="sea-charms" aria-hidden="true">
-          <span class="sea-charm sea-charm-jelly">🪼</span>
-          <span class="sea-charm sea-charm-lobster">🦞</span>
-        </div>
+        <p class="side-heading">be connected</p>
       </figure>
     </div>
   </section>
@@ -310,16 +309,6 @@
         and turn attention into collaboration. Less doomscrolling. More direction.
       </p>
     </div>
-  </section>
-
-  <section class="principles" aria-label="Core principles">
-    {#each principles as principle}
-      <article class="principle-card">
-        <p class="eyebrow">Principle</p>
-        <h3>{principle.name}</h3>
-        <p>{principle.copy}</p>
-      </article>
-    {/each}
   </section>
 
   <section class="attending" id="attending" aria-label="Attending">
