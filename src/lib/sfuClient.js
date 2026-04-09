@@ -64,6 +64,8 @@ export class SFUClient {
     this.remoteStreams = new Map();
     /** remote trackName → peerId (for ontrack routing) */
     this.trackNameToPeer = new Map();
+    /** transceiver mid → peerId, populated before each subscribe setRemoteDescription */
+    this.midToPeerId = new Map();
 
     /** @type {Map<string, Function[]>} */
     this.listeners = new Map();
@@ -197,26 +199,20 @@ export class SFUClient {
     this.pc.addEventListener("track", (event) => {
       const track = event.track;
       const stream = event.streams[0];
-      // We don't always know the peerId yet — fall back to a best-effort by
-      // trackName via ontrack's `transceiver.mid`.
       const mid = event.transceiver?.mid;
-      let peerId = null;
-      // Try to match by track name via SDP mid → peerId map we build during
-      // subscribe calls.
-      if (mid) {
-        // trackNameToPeer is keyed by trackName; browsers don't always expose
-        // the remote track name easily, so as a fallback use the stream id.
-      }
+      console.log("[SFUClient] ontrack kind=", track.kind, "mid=", mid, "streamId=", stream?.id);
+
+      // Primary attribution: mid map pre-populated in _subscribeTo.
+      let peerId = mid ? (this.midToPeerId.get(mid) ?? null) : null;
+
+      // Fallback: try to match stream/track id against known trackNames.
       if (!peerId && stream) {
-        // The server assigns stream ids like `{peerId}-audio` and `{peerId}-video`
-        // via our trackName convention. Browsers use the track's `id` as the
-        // stream id when there's a single track per transceiver — check both.
         const hint = stream.id || track.id;
         for (const p of this.roster) {
           if (
             p.tracks?.audio?.trackName === hint ||
             p.tracks?.video?.trackName === hint ||
-            hint?.startsWith(p.peerId)
+            (hint && hint.startsWith(p.peerId))
           ) {
             peerId = p.peerId;
             break;
@@ -230,11 +226,12 @@ export class SFUClient {
           ms = new MediaStream();
           this.remoteStreams.set(peerId, ms);
         }
-        ms.addTrack(track);
+        if (!ms.getTracks().some((t) => t.id === track.id)) {
+          ms.addTrack(track);
+        }
         this.emit("remote-track", peerId, track, ms);
       } else {
-        // We got a track we can't attribute yet. Buffer it on a generic stream
-        // and re-emit when subscribe completes.
+        console.warn("[SFUClient] ontrack could not attribute track to a peer. mid=", mid, "streamId=", stream?.id);
         this.emit("remote-track", null, track, stream);
       }
     });
@@ -364,15 +361,35 @@ export class SFUClient {
   async _subscribeTo(fromPeerId) {
     this._send({ type: "sfu-subscribe", fromPeerId });
     const result = await this._waitForMessage("sfu-subscribe-result", (m) => m.fromPeerId === fromPeerId);
-    // The SFU gave us an offer to apply + renegotiate.
+
+    // Parse mid values out of the SFU's offer SDP and attribute any mid
+    // that we don't already own to `fromPeerId`. This must happen BEFORE
+    // setRemoteDescription because ontrack fires synchronously inside that
+    // call and we need the lookup ready by then.
+    const existingMids = new Set(
+      this.pc.getTransceivers().map((t) => t.mid).filter(Boolean)
+    );
+    const midMatches = [...result.offer.sdp.matchAll(/^a=mid:(\S+)/gm)];
+    for (const m of midMatches) {
+      const mid = m[1];
+      if (!existingMids.has(mid) && !this.midToPeerId.has(mid)) {
+        this.midToPeerId.set(mid, fromPeerId);
+      }
+    }
+    console.log("[SFUClient] subscribe to", fromPeerId, "new mids:", midMatches.map((m) => m[1]).filter((m) => !existingMids.has(m)));
+
+    // Now apply the offer — ontrack will fire with transceivers whose mids
+    // are in midToPeerId.
     await this.pc.setRemoteDescription({ type: "offer", sdp: result.offer.sdp });
     const answer = await this.pc.createAnswer();
     await this.pc.setLocalDescription(answer);
+
     if (result.requiresImmediateRenegotiation) {
       this._send({ type: "sfu-renegotiate", answer: { sdp: answer.sdp } });
       await this._waitForMessage("sfu-renegotiate-result");
     }
-    // Remember which peer those trackNames belong to so ontrack can attribute.
+
+    // Also remember trackNames → peerId for any late fallback lookups.
     if (result.tracks) {
       for (const t of result.tracks) {
         this.trackNameToPeer.set(t.trackName, fromPeerId);
