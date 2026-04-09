@@ -1,3 +1,15 @@
+<script>
+	function startCall(kind) {
+		const id =
+			typeof crypto !== 'undefined' && 'randomUUID' in crypto
+				? crypto.randomUUID()
+				: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+		const prefix =
+			kind === 'one-on-one' ? '/call/' : kind === 'group' ? '/room/' : '/voice/';
+		window.location.href = `${prefix}${id}`;
+	}
+</script>
+
 <svelte:head>
 	<title>Download Jelly-Claw</title>
 	<meta name="description" content="Download Jelly-Claw for macOS — video calling, audio recording, and podcast clipping for Jelly users." />
@@ -49,6 +61,24 @@
 				<h3>Jelly Integration</h3>
 				<p>Post clips, send DMs, browse contacts — all from your menu bar.</p>
 			</div>
+		</div>
+	</div>
+
+	<div class="start-a-call">
+		<p class="eyebrow">OR START A CALL RIGHT FROM THE BROWSER</p>
+		<div class="call-options">
+			<button class="call-option" on:click={() => startCall('one-on-one')}>
+				<span class="option-title">1:1 CALL</span>
+				<span class="option-sub">just you and one other · free</span>
+			</button>
+			<button class="call-option" on:click={() => startCall('group')}>
+				<span class="option-title">GROUP CALL</span>
+				<span class="option-sub">up to 8 · live video spectators</span>
+			</button>
+			<button class="call-option" on:click={() => startCall('voice')}>
+				<span class="option-title">VOICE ROOM</span>
+				<span class="option-sub">up to 8 · live audio listeners</span>
+			</button>
 		</div>
 	</div>
 
@@ -180,6 +210,59 @@
 		color: rgba(244, 241, 234, 0.5);
 		margin: 0;
 		line-height: 1.4;
+	}
+
+	.start-a-call {
+		margin-top: 3rem;
+		max-width: 520px;
+		width: 100%;
+		text-align: center;
+	}
+
+	.start-a-call .eyebrow {
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.22em;
+		color: rgba(244, 241, 234, 0.45);
+		margin: 0 0 1rem;
+	}
+
+	.call-options {
+		display: grid;
+		gap: 0.6rem;
+	}
+
+	.call-option {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.2rem;
+		padding: 14px 20px;
+		background: rgba(244, 241, 234, 0.03);
+		border: 1px solid rgba(244, 241, 234, 0.12);
+		border-radius: 14px;
+		color: #f4f1ea;
+		cursor: pointer;
+		transition: all 0.2s;
+		font-family: inherit;
+	}
+
+	.call-option:hover {
+		background: rgba(56, 152, 236, 0.08);
+		border-color: rgba(56, 152, 236, 0.35);
+		transform: translateY(-2px);
+	}
+
+	.call-option .option-title {
+		font-size: 0.78rem;
+		font-weight: 600;
+		letter-spacing: 0.18em;
+	}
+
+	.call-option .option-sub {
+		font-size: 0.72rem;
+		color: rgba(244, 241, 234, 0.45);
+		letter-spacing: 0.04em;
 	}
 
 	.install-note {
