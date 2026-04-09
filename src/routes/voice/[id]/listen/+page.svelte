@@ -25,6 +25,15 @@
     typeof window !== 'undefined' ? `${window.location.origin}/voice/${roomId}/listen` : '';
   const roomFull = $derived(roster.length >= 8);
 
+  const brandHost = $derived.by(() => {
+    if (typeof window === 'undefined') return 'jelly-claw.com';
+    const host = window.location.hostname;
+    if (host && host.endsWith('.jelly-claw.com')) return host;
+    const first = roster[0];
+    if (first?.name) return `${first.name}.jelly-claw.com`;
+    return 'jelly-claw.com';
+  });
+
   onMount(async () => {
     try {
       const identity = anonymousIdentity();
@@ -157,6 +166,19 @@
 </svelte:head>
 
 <div class="page">
+  <div class="backdrop" aria-hidden="true">
+    <img src="/editorial/model-shades-bw.jpg" alt="" class="backdrop-img" />
+    <div class="backdrop-shade"></div>
+    <div class="backdrop-blue"></div>
+    <div class="backdrop-orange"></div>
+    <div class="backdrop-grid"></div>
+  </div>
+  <div class="brand-banner" aria-hidden="true">
+    <span class="brand-host">{brandHost}</span>
+    <span class="brand-sep">//</span>
+    <span class="brand-tag">AGENTIC SOCIAL MEDIA</span>
+  </div>
+
   <header class="topbar">
     <div class="brand">
       <span class="eyebrow">JELLY CLAW / LIVE</span>
@@ -237,20 +259,27 @@ wrangler deploy</pre>
   </main>
 
   <footer class="controls">
-    {#if roomFull}
-      <button class="pill disabled" disabled>ROOM IS FULL · 8/8</button>
-    {:else}
-      <a class="pill primary" href="/voice/{roomId}">TAKE THE MIC ({roster.length}/8)</a>
-    {/if}
     <button class="pill" on:click={copyLink}>COPY LISTEN LINK</button>
   </footer>
 </div>
 
 <style>
   :global(body) { margin: 0; background: #070707; color: #f4f1ea; font-family: 'Montserrat', sans-serif; }
-  .page { min-height: 100vh; background: #070707; color: #f4f1ea; display: flex; flex-direction: column; }
+  .page { min-height: 100vh; background: #070707; color: #f4f1ea; display: flex; flex-direction: column; position: relative; overflow: hidden; }
 
-  .topbar { display: flex; align-items: center; gap: 1rem; padding: 14px 22px; border-bottom: 1px solid rgba(244,241,234,0.08); }
+  .backdrop { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .backdrop-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1); opacity: 0.28; }
+  .backdrop-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0.95) 100%); }
+  .backdrop-blue { position: absolute; inset: 0; background: radial-gradient(circle at 85% 15%, rgba(74,133,255,0.35), transparent 38%); mix-blend-mode: screen; }
+  .backdrop-orange { position: absolute; inset: 0; background: radial-gradient(circle at 10% 90%, rgba(234,130,56,0.32), transparent 40%); mix-blend-mode: screen; }
+  .backdrop-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 72px 72px; opacity: 0.35; }
+
+  .brand-banner { position: absolute; top: 14px; right: 22px; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); border: 1px solid rgba(244,241,234,0.1); border-radius: 999px; pointer-events: none; }
+  .brand-host { color: rgba(244,241,234,0.95); font-family: 'Forum', serif; font-size: 0.95rem; letter-spacing: 0.02em; }
+  .brand-sep { color: rgba(234,130,56,0.8); font-size: 0.8rem; }
+  .brand-tag { color: rgba(244,241,234,0.55); font-size: 0.58rem; letter-spacing: 0.22em; font-weight: 600; }
+
+  .topbar { position: relative; z-index: 2; display: flex; align-items: center; gap: 1rem; padding: 14px 22px; border-bottom: 1px solid rgba(244,241,234,0.06); }
   .brand { display: flex; align-items: center; gap: 8px; }
   .eyebrow { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.22em; color: rgba(244,241,234,0.55); }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(234,60,56,0.9); }
@@ -259,7 +288,7 @@ wrangler deploy</pre>
   .counts { font-size: 0.7rem; letter-spacing: 0.1em; color: rgba(244,241,234,0.6); font-weight: 600; margin-left: auto; }
   .counts .sep { margin: 0 6px; color: rgba(244,241,234,0.25); }
 
-  .main { flex: 1; display: grid; grid-template-columns: 1fr 320px; overflow: hidden; }
+  .main { position: relative; z-index: 2; flex: 1; display: grid; grid-template-columns: 1fr 320px; overflow: hidden; }
   .stage { padding: 40px 22px; display: flex; align-items: center; justify-content: center; }
 
   .orbs { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; max-width: 900px; }
@@ -275,7 +304,7 @@ wrangler deploy</pre>
   .box { text-align: center; padding: 2rem; border: 1px solid rgba(244,241,234,0.08); border-radius: 16px; background: rgba(244,241,234,0.02); max-width: 400px; }
   .box p { margin: 0.4rem 0; font-size: 0.85rem; color: rgba(244,241,234,0.7); }
 
-  .chat { background: #0b0b0b; border-left: 1px solid rgba(244,241,234,0.08); display: flex; flex-direction: column; min-height: 0; }
+  .chat { background: rgba(11,11,11,0.78); backdrop-filter: blur(22px); border-left: 1px solid rgba(244,241,234,0.06); display: flex; flex-direction: column; min-height: 0; }
   .chat-header { padding: 14px 16px; border-bottom: 1px solid rgba(244,241,234,0.06); }
   .chat-scroll { flex: 1; overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
   .chat-msg { font-size: 0.8rem; line-height: 1.4; color: rgba(244,241,234,0.85); }
@@ -290,7 +319,7 @@ wrangler deploy</pre>
   .chat-input input { flex: 1; background: rgba(244,241,234,0.05); border: 1px solid rgba(244,241,234,0.1); border-radius: 8px; padding: 7px 10px; color: #f4f1ea; font-size: 0.75rem; outline: none; }
   .chat-input button { background: #f4f1ea; color: #070707; border: none; border-radius: 8px; padding: 7px 12px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; cursor: pointer; }
 
-  .controls { display: flex; align-items: center; gap: 12px; padding: 16px 22px; border-top: 1px solid rgba(244,241,234,0.08); background: #0a0a0a; }
+  .controls { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-top: 1px solid rgba(244,241,234,0.06); background: rgba(10,10,10,0.78); backdrop-filter: blur(22px); }
   .pill { background: transparent; border: 1px solid rgba(244,241,234,0.18); color: rgba(244,241,234,0.85); padding: 10px 20px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; cursor: pointer; text-decoration: none; }
   .pill:hover { background: rgba(244,241,234,0.06); }
   .pill.primary { background: #f4f1ea; color: #070707; border-color: transparent; }

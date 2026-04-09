@@ -27,6 +27,18 @@
   const watchLink = () =>
     typeof window !== 'undefined' ? `${window.location.origin}/room/${roomId}/watch` : '';
 
+  // Host identity for the editorial screenshot banner. If the page is served
+  // from a subdomain (iqram.jelly-claw.com), use that. Otherwise fall back
+  // to the first participant in the roster.
+  const brandHost = $derived.by(() => {
+    if (typeof window === 'undefined') return 'jelly-claw.com';
+    const host = window.location.hostname;
+    if (host && host.endsWith('.jelly-claw.com')) return host;
+    const first = roster[0];
+    if (first?.name) return `${first.name}.jelly-claw.com`;
+    return 'jelly-claw.com';
+  });
+
   // Derived: tiles to render in the grid (roster + self)
   const tiles = $derived.by(() => {
     const list = [];
@@ -211,6 +223,22 @@
 </svelte:head>
 
 <div class="page">
+  <!-- Editorial backdrop -->
+  <div class="backdrop" aria-hidden="true">
+    <img src="/editorial/model-shades-bw.jpg" alt="" class="backdrop-img" />
+    <div class="backdrop-shade"></div>
+    <div class="backdrop-blue"></div>
+    <div class="backdrop-orange"></div>
+    <div class="backdrop-grid"></div>
+  </div>
+
+  <!-- Screenshot branding banner -->
+  <div class="brand-banner" aria-hidden="true">
+    <span class="brand-host">{brandHost}</span>
+    <span class="brand-sep">//</span>
+    <span class="brand-tag">AGENTIC SOCIAL MEDIA</span>
+  </div>
+
   <!-- Top bar -->
   <header class="topbar">
     <div class="brand">
@@ -378,15 +406,99 @@ wrangler deploy</pre>
     color: #f4f1ea;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Editorial backdrop */
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .backdrop-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.1);
+    opacity: 0.28;
+  }
+  .backdrop-shade {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0.95) 100%);
+  }
+  .backdrop-blue {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 85% 15%, rgba(74, 133, 255, 0.35), transparent 38%);
+    mix-blend-mode: screen;
+  }
+  .backdrop-orange {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 10% 90%, rgba(234, 130, 56, 0.32), transparent 40%);
+    mix-blend-mode: screen;
+  }
+  .backdrop-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 72px 72px;
+    opacity: 0.35;
+  }
+
+  /* Screenshot banner */
+  .brand-banner {
+    position: absolute;
+    top: 14px;
+    right: 22px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(244, 241, 234, 0.1);
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  .brand-host {
+    color: rgba(244, 241, 234, 0.95);
+    font-family: 'Forum', serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+  .brand-sep {
+    color: rgba(234, 130, 56, 0.8);
+    font-size: 0.8rem;
+  }
+  .brand-tag {
+    color: rgba(244, 241, 234, 0.55);
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
   }
 
   /* Top bar */
   .topbar {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 14px 22px;
-    border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+    padding: 14px 22px 14px 22px;
+    border-bottom: 1px solid rgba(244, 241, 234, 0.06);
   }
   .brand {
     display: flex;
@@ -444,6 +556,8 @@ wrangler deploy</pre>
 
   /* Main */
   .main {
+    position: relative;
+    z-index: 2;
     flex: 1;
     display: grid;
     grid-template-columns: 1fr;
@@ -455,7 +569,7 @@ wrangler deploy</pre>
   }
 
   .stage {
-    padding: 22px;
+    padding: 20px 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -464,7 +578,7 @@ wrangler deploy</pre>
 
   .grid {
     display: grid;
-    gap: 14px;
+    gap: 10px;
     width: 100%;
     height: 100%;
     max-height: calc(100vh - 170px);
@@ -477,17 +591,16 @@ wrangler deploy</pre>
 
   .tile {
     position: relative;
-    background: #0f0f0f;
-    border-radius: 18px;
+    background: #0a0a0a;
+    border-radius: 6px;
     overflow: hidden;
-    border: 1px solid rgba(244, 241, 234, 0.08);
     aspect-ratio: 4 / 3;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(244, 241, 234, 0.06) inset;
   }
   .tile video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: grayscale(0.2) contrast(1.05);
   }
   .tile.self video { transform: scaleX(-1); }
 
@@ -514,15 +627,16 @@ wrangler deploy</pre>
     position: absolute;
     bottom: 10px;
     left: 10px;
-    padding: 5px 10px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 999px;
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 3px;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    font-weight: 500;
     display: flex;
     align-items: center;
     gap: 5px;
-    color: rgba(244, 241, 234, 0.9);
+    color: rgba(244, 241, 234, 0.95);
     backdrop-filter: blur(8px);
   }
   .mute-icon { color: #ea8238; }
@@ -569,8 +683,9 @@ wrangler deploy</pre>
 
   /* Chat */
   .chat {
-    background: #0b0b0b;
-    border-left: 1px solid rgba(244, 241, 234, 0.08);
+    background: rgba(11, 11, 11, 0.78);
+    backdrop-filter: blur(22px);
+    border-left: 1px solid rgba(244, 241, 234, 0.06);
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -647,12 +762,15 @@ wrangler deploy</pre>
 
   /* Controls */
   .controls {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 22px;
-    border-top: 1px solid rgba(244, 241, 234, 0.08);
-    background: #0a0a0a;
+    padding: 16px 24px;
+    border-top: 1px solid rgba(244, 241, 234, 0.06);
+    background: rgba(10, 10, 10, 0.78);
+    backdrop-filter: blur(22px);
   }
   .ctrl {
     width: 42px;
