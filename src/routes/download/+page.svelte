@@ -19,6 +19,7 @@
 		Download for macOS
 	</a>
 	<p class="version">v1.0.0 · 2.4 MB · macOS 12+</p>
+	<a href="/pricing" class="pricing-link">See pricing →</a>
 
 	<div class="features">
 		<div class="feature">
@@ -125,6 +126,20 @@
 		font-size: 0.75rem;
 		color: rgba(244, 241, 234, 0.3);
 		letter-spacing: 0.08em;
+	}
+
+	.pricing-link {
+		display: inline-block;
+		margin-top: 1rem;
+		font-size: 0.8rem;
+		color: rgba(56, 152, 236, 0.9);
+		text-decoration: none;
+		letter-spacing: 0.03em;
+		transition: color 0.2s;
+	}
+
+	.pricing-link:hover {
+		color: rgba(56, 152, 236, 1);
 	}
 
 	.features {
