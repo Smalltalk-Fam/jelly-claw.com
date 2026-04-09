@@ -248,7 +248,8 @@ export class SFUClient {
     // For participants, we defer session creation until publishMedia(); for
     // audience, we create the session immediately so they can subscribe.
     if (this.role === "audience") {
-      await this._createSfuSession(this.pc.localDescription || await this._makeOffer());
+      const offer = await this._makeOffer();
+      await this._createSfuSession(offer);
       // Wait for the PeerConnection to fully connect before subscribing —
       // Cloudflare Realtime refuses tracks/new calls on "unready" sessions.
       await this._waitForConnection();
@@ -256,7 +257,7 @@ export class SFUClient {
     }
   }
 
-  _waitForConnection(timeoutMs = 10000) {
+  _waitForConnection(timeoutMs = 20000) {
     return new Promise((resolve, reject) => {
       if (!this.pc) { reject(new Error("no peer connection")); return; }
       if (this.pc.connectionState === "connected") { resolve(); return; }
@@ -283,7 +284,31 @@ export class SFUClient {
   async _makeOffer() {
     const offer = await this.pc.createOffer();
     await this.pc.setLocalDescription(offer);
+    // Cloudflare Realtime SFU is ice-lite and does not support trickle ICE.
+    // Wait for iceGatheringState === "complete" so the SDP we send contains
+    // every candidate — otherwise the remote end can't finish the handshake
+    // and our connectionstate never reaches "connected".
+    await this._waitForIceGathering(2500);
     return this.pc.localDescription;
+  }
+
+  _waitForIceGathering(timeoutMs = 2500) {
+    return new Promise((resolve) => {
+      if (!this.pc || this.pc.iceGatheringState === "complete") {
+        resolve();
+        return;
+      }
+      const cleanup = () => {
+        this.pc?.removeEventListener("icegatheringstatechange", check);
+        clearTimeout(timer);
+        resolve();
+      };
+      const check = () => {
+        if (this.pc?.iceGatheringState === "complete") cleanup();
+      };
+      const timer = setTimeout(cleanup, timeoutMs);
+      this.pc.addEventListener("icegatheringstatechange", check);
+    });
   }
 
   async _createSfuSession(offer) {
