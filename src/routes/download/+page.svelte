@@ -30,7 +30,7 @@
 		</svg>
 		Download for macOS
 	</a>
-	<p class="version">v1.0.0 · 2.4 MB · macOS 12+</p>
+	<p class="version">v1.1.0 · 3.6 MB · macOS 12+ · universal (Intel + Apple Silicon)</p>
 	<a href="/pricing" class="pricing-link">See pricing →</a>
 
 	<div class="features">
