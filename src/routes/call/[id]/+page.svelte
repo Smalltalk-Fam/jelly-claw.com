@@ -416,10 +416,15 @@
 			<span class="status-text error-text">Error</span>
 		{/if}
 
-		{#if isRecording}
-			<span class="recording-pill">REC</span>
-		{/if}
 	</div>
+
+	<!-- Top-right: recording indicator -->
+	{#if isRecording}
+		<div class="rec-badge">
+			<span class="rec-dot"></span>
+			REC {formattedTime()}
+		</div>
+	{/if}
 
 	<!-- Username label -->
 	{#if username}
@@ -647,26 +652,31 @@
 		color: #ff6b6b;
 	}
 
-	.recording-pill {
-		display: inline-flex;
+	.rec-badge {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		display: flex;
 		align-items: center;
 		gap: 6px;
-		padding: 4px 12px;
-		background: rgba(220, 38, 38, 0.9);
-		border-radius: 999px;
+		padding: 5px 12px;
+		background: rgba(220, 38, 38, 0.8);
+		border-radius: 12px;
 		font-size: 0.7rem;
 		font-weight: 700;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
+		font-family: monospace;
+		letter-spacing: 0.08em;
+		color: #fff;
+		z-index: 50;
 		animation: pulse-recording 1.5s ease-in-out infinite;
 	}
 
-	.recording-pill::before {
-		content: '';
+	.rec-dot {
 		width: 8px;
 		height: 8px;
 		border-radius: 50%;
 		background: #fff;
+		display: inline-block;
 	}
 
 	@keyframes pulse-recording {
