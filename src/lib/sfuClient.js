@@ -252,9 +252,35 @@ export class SFUClient {
     // audience, we create the session immediately so they can subscribe.
     if (this.role === "audience") {
       await this._createSfuSession(this.pc.localDescription || await this._makeOffer());
-      // After the session exists, subscribe to every publisher in the roster.
+      // Wait for the PeerConnection to fully connect before subscribing —
+      // Cloudflare Realtime refuses tracks/new calls on "unready" sessions.
+      await this._waitForConnection();
       await this._subscribeToRoster();
     }
+  }
+
+  _waitForConnection(timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+      if (!this.pc) { reject(new Error("no peer connection")); return; }
+      if (this.pc.connectionState === "connected") { resolve(); return; }
+      const timer = setTimeout(() => {
+        this.pc?.removeEventListener("connectionstatechange", handler);
+        reject(new Error(`PeerConnection did not connect in ${timeoutMs}ms (state=${this.pc?.connectionState})`));
+      }, timeoutMs);
+      const handler = () => {
+        const s = this.pc?.connectionState;
+        if (s === "connected") {
+          clearTimeout(timer);
+          this.pc.removeEventListener("connectionstatechange", handler);
+          resolve();
+        } else if (s === "failed" || s === "closed") {
+          clearTimeout(timer);
+          this.pc.removeEventListener("connectionstatechange", handler);
+          reject(new Error(`PeerConnection ${s}`));
+        }
+      };
+      this.pc.addEventListener("connectionstatechange", handler);
+    });
   }
 
   async _makeOffer() {
@@ -311,6 +337,17 @@ export class SFUClient {
 
     const offer = await this._makeOffer();
     await this._createSfuSession(offer);
+
+    // Cloudflare Realtime needs pc.connectionState === "connected" before
+    // tracks/new is legal. The initial offer published the sendonly
+    // transceivers as part of sessions/new; we just need to name them.
+    await this._waitForConnection();
+
+    // Tell the server to register the track names with the SFU. No SDP
+    // renegotiation is required — we're just naming the existing mids.
+    this._send({ type: "sfu-register-tracks" });
+    await this._waitForMessage("sfu-tracks-registered");
+
     await this._subscribeToRoster();
   }
 
@@ -351,12 +388,20 @@ export class SFUClient {
     let msg;
     try { msg = JSON.parse(raw); } catch { return; }
 
-    // Resolve any pending waitForMessage promises.
+    // Resolve any pending waitForMessage promises — either matching the
+    // requested type, or a server error that we should turn into a reject.
     for (let i = this._pendingMatches.length - 1; i >= 0; i--) {
       const p = this._pendingMatches[i];
       if (msg.type === p.type && (!p.predicate || p.predicate(msg))) {
         this._pendingMatches.splice(i, 1);
         p.resolve(msg);
+      } else if (msg.type === "error") {
+        // Any server error aborts every pending waiter so the user sees
+        // the real reason instead of a generic 15-second timeout.
+        this._pendingMatches.splice(i, 1);
+        const err = new Error(msg.message || "server error");
+        err.serverError = true;
+        p.reject(err);
       }
     }
 
@@ -410,19 +455,17 @@ export class SFUClient {
 
   _waitForMessage(type, predicate) {
     return new Promise((resolve, reject) => {
+      const entry = {};
       const timeout = setTimeout(() => {
-        const i = this._pendingMatches.findIndex((p) => p.resolve === resolve);
+        const i = this._pendingMatches.indexOf(entry);
         if (i >= 0) this._pendingMatches.splice(i, 1);
         reject(new Error(`timed out waiting for ${type}`));
       }, 15000);
-      this._pendingMatches.push({
-        type,
-        predicate,
-        resolve: (msg) => {
-          clearTimeout(timeout);
-          resolve(msg);
-        },
-      });
+      entry.type = type;
+      entry.predicate = predicate;
+      entry.resolve = (msg) => { clearTimeout(timeout); resolve(msg); };
+      entry.reject = (err) => { clearTimeout(timeout); reject(err); };
+      this._pendingMatches.push(entry);
     });
   }
 
