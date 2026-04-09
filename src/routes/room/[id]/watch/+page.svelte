@@ -76,7 +76,11 @@
       await client.connect();
       status = 'live';
     } catch (err) {
-      errorText = err?.message || 'Failed to join';
+      if (err?.code === 'SFU_NOT_CONFIGURED' || err?.message === 'SFU_NOT_CONFIGURED') {
+        errorText = 'SFU_NOT_CONFIGURED';
+      } else {
+        errorText = err?.message || 'Failed to join';
+      }
       status = 'error';
     }
   });
@@ -137,6 +141,14 @@
     <div class="stage">
       {#if status === 'connecting'}
         <div class="box"><p class="eyebrow">CONNECTING</p></div>
+      {:else if status === 'error' && errorText === 'SFU_NOT_CONFIGURED'}
+        <div class="box">
+          <p class="eyebrow">CLOUDFLARE REALTIME NOT SET UP</p>
+          <p style="font-size: 0.8rem;">The signaling server needs Cloudflare Realtime SFU secrets. Run:</p>
+          <pre style="background: rgba(244,241,234,0.05); border: 1px solid rgba(244,241,234,0.12); padding: 14px; border-radius: 10px; font-size: 0.7rem; color: rgba(244,241,234,0.85); text-align: left; overflow-x: auto; margin: 0.8rem 0; font-family: ui-monospace, monospace; white-space: pre;">wrangler secret put CALLS_APP_ID
+wrangler secret put CALLS_APP_TOKEN
+wrangler deploy</pre>
+        </div>
       {:else if status === 'error'}
         <div class="box"><p class="eyebrow">UNABLE TO CONNECT</p><p>{errorText}</p></div>
       {:else if roster.length === 0}

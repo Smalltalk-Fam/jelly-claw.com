@@ -138,7 +138,11 @@
       status = 'live';
     } catch (err) {
       console.error(err);
-      errorText = err?.message || 'Failed to join call';
+      if (err?.code === 'SFU_NOT_CONFIGURED' || err?.message === 'SFU_NOT_CONFIGURED') {
+        errorText = 'SFU_NOT_CONFIGURED';
+      } else {
+        errorText = err?.message || 'Failed to join call';
+      }
       status = 'error';
     }
   });
@@ -236,11 +240,22 @@
   <main class="main" class:with-chat={isChatOpen}>
     <div class="stage">
       {#if status === 'error'}
-        <div class="error-box">
-          <p class="eyebrow">SOMETHING WENT WRONG</p>
-          <p>{errorText}</p>
-          <a href="/room/{roomId}/watch" class="btn-outline">WATCH INSTEAD</a>
-        </div>
+        {#if errorText === 'SFU_NOT_CONFIGURED'}
+          <div class="error-box">
+            <p class="eyebrow">CLOUDFLARE REALTIME NOT SET UP</p>
+            <p>Group Call and Voice Room need Cloudflare Realtime SFU secrets on the signaling server. Run these, then reload:</p>
+            <pre class="setup-code">wrangler secret put CALLS_APP_ID
+wrangler secret put CALLS_APP_TOKEN
+wrangler deploy</pre>
+            <p style="font-size: 0.72rem; opacity: 0.55;">Get them from Cloudflare dashboard → Realtime → SFU. 1:1 calls at /call/:id work without this.</p>
+          </div>
+        {:else}
+          <div class="error-box">
+            <p class="eyebrow">SOMETHING WENT WRONG</p>
+            <p>{errorText}</p>
+            <a href="/room/{roomId}/watch" class="btn-outline">WATCH INSTEAD</a>
+          </div>
+        {/if}
       {:else if status === 'connecting'}
         <div class="connecting-box">
           <p class="eyebrow">CONNECTING</p>
@@ -537,6 +552,19 @@
     font-weight: 600;
     letter-spacing: 0.15em;
     text-decoration: none;
+  }
+  .setup-code {
+    background: rgba(244, 241, 234, 0.05);
+    border: 1px solid rgba(244, 241, 234, 0.12);
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    color: rgba(244, 241, 234, 0.85);
+    text-align: left;
+    overflow-x: auto;
+    margin: 1rem 0;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    white-space: pre;
   }
 
   /* Chat */

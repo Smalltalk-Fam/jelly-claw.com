@@ -87,6 +87,22 @@ export class SFUClient {
   // ── Lifecycle ────────────────────────────────────────────────────
 
   async connect() {
+    // Preflight — verify the signaling server has SFU secrets set.
+    // Without this, the WebSocket upgrade fails with a generic event
+    // that gives no hint about what actually went wrong.
+    try {
+      const base = this.wsUrl.replace(/^wss?:/, location.protocol === "https:" ? "https:" : "http:").replace(/\/(room|voice|call)\/.*$/, "");
+      const resp = await fetch(`${base}/health`, { mode: "cors" });
+      const health = await resp.json();
+      if (health.sfu !== "configured") {
+        const err = new Error("SFU_NOT_CONFIGURED");
+        err.code = "SFU_NOT_CONFIGURED";
+        throw err;
+      }
+    } catch (e) {
+      if (e?.code === "SFU_NOT_CONFIGURED") throw e;
+      // network error on health check — fall through and let the WS try anyway
+    }
     await this._openWebSocket();
     await this._sendHello();
     await this._bootstrapSession();
