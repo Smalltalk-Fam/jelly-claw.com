@@ -242,6 +242,23 @@
     .profile-name { font-size: 1.4rem; }
     .jelly-grid { grid-template-columns: repeat(3, 1fr); gap: 2px; }
   }
+
+  :global(.closing) .agency-link,
+  .agency-link {
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(244, 241, 234, 0.55);
+    border-bottom: 1px solid rgba(244, 241, 234, 0.18);
+    padding-bottom: 2px;
+    transition: color 180ms ease, border-color 180ms ease;
+  }
+
+  .agency-link:hover {
+    color: var(--paper);
+    border-color: rgba(244, 241, 234, 0.6);
+  }
 </style>
 
 {:else}
@@ -332,6 +349,7 @@
     <a class="primary" href="mailto:hello@jelly-claw.com?subject=Jelly%20Claw%20Registration">
       Request Access
     </a>
+    <a class="agency-link" href="/models">Learn about our Model Agency →</a>
   </section>
 </div>
 

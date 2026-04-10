@@ -31,15 +31,6 @@
   const listenLink = () =>
     typeof window !== 'undefined' ? `${window.location.origin}/voice/${roomId}/listen` : '';
 
-  const brandHost = $derived.by(() => {
-    if (typeof window === 'undefined') return 'jelly-claw.com';
-    const host = window.location.hostname;
-    if (host && host.endsWith('.jelly-claw.com')) return host;
-    const first = roster[0];
-    if (first?.name) return `${first.name}.jelly-claw.com`;
-    return 'jelly-claw.com';
-  });
-
   const orbs = $derived.by(() => {
     const list = [];
     if (localStream) {
@@ -225,13 +216,6 @@
 </svelte:head>
 
 <div class="page">
-  <div class="backdrop" aria-hidden="true">
-    <img src="/editorial/model-shades-bw.jpg" alt="" class="backdrop-img" />
-    <div class="backdrop-shade"></div>
-    <div class="backdrop-blue"></div>
-    <div class="backdrop-orange"></div>
-    <div class="backdrop-grid"></div>
-  </div>
   <header class="topbar">
     <div class="brand">
       <span class="eyebrow">JELLY CLAW / VOICE ROOM</span>
@@ -248,12 +232,6 @@
       </button>
     </div>
   </header>
-
-  <div class="brand-banner" aria-hidden="true">
-    <span class="brand-host">{brandHost}</span>
-    <span class="brand-sep">//</span>
-    <span class="brand-tag">AGENTIC SOCIAL MEDIA</span>
-  </div>
 
   <main class="main" class:with-chat={isChatOpen}>
     <div class="stage">
@@ -351,21 +329,9 @@ wrangler deploy</pre>
 
 <style>
   :global(body) { margin: 0; background: #070707; color: #f4f1ea; font-family: 'Montserrat', sans-serif; }
-  .page { min-height: 100vh; background: #070707; color: #f4f1ea; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .page { min-height: 100vh; background: #070707; color: #f4f1ea; display: flex; flex-direction: column; position: relative; }
 
-  .backdrop { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-  .backdrop-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1); opacity: 0.28; }
-  .backdrop-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0.95) 100%); }
-  .backdrop-blue { position: absolute; inset: 0; background: radial-gradient(circle at 85% 15%, rgba(74,133,255,0.35), transparent 38%); mix-blend-mode: screen; }
-  .backdrop-orange { position: absolute; inset: 0; background: radial-gradient(circle at 10% 90%, rgba(234,130,56,0.32), transparent 40%); mix-blend-mode: screen; }
-  .backdrop-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 72px 72px; opacity: 0.35; }
-
-  .brand-banner { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 14px 10px; background: rgba(0,0,0,0.32); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(244,241,234,0.05); pointer-events: none; }
-  .brand-host { color: rgba(244,241,234,0.95); font-family: 'Forum', serif; font-size: 0.95rem; letter-spacing: 0.02em; }
-  .brand-sep { color: rgba(234,130,56,0.8); font-size: 0.8rem; }
-  .brand-tag { color: rgba(244,241,234,0.55); font-size: 0.58rem; letter-spacing: 0.22em; font-weight: 600; }
-
-  .topbar { position: relative; z-index: 2; display: flex; align-items: center; gap: 1rem; padding: 14px 22px; border-bottom: 1px solid rgba(244,241,234,0.06); }
+  .topbar { display: flex; align-items: center; gap: 1rem; padding: 14px 22px; border-bottom: 1px solid rgba(244,241,234,0.08); }
   .brand { display: flex; align-items: center; gap: 8px; }
   .eyebrow { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.22em; color: rgba(244,241,234,0.55); }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(56, 152, 236, 0.9); }
@@ -377,7 +343,7 @@ wrangler deploy</pre>
   .icon-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(244,241,234,0.05); border: 1px solid rgba(244,241,234,0.12); color: rgba(244,241,234,0.85); display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .icon-btn:hover { background: rgba(244,241,234,0.1); }
 
-  .main { position: relative; z-index: 2; flex: 1; display: grid; grid-template-columns: 1fr; overflow: hidden; }
+  .main { flex: 1; display: grid; grid-template-columns: 1fr; overflow: hidden; }
   .main.with-chat { grid-template-columns: 1fr 320px; }
 
   .stage { padding: 40px 22px; display: flex; align-items: center; justify-content: center; }
@@ -396,7 +362,7 @@ wrangler deploy</pre>
   .box p { margin: 0.4rem 0; font-size: 0.85rem; color: rgba(244,241,234,0.7); }
   .btn-outline { display: inline-block; margin-top: 1rem; padding: 9px 18px; border: 1px solid rgba(244,241,234,0.25); border-radius: 999px; color: #f4f1ea; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em; text-decoration: none; }
 
-  .chat { background: rgba(11,11,11,0.78); backdrop-filter: blur(22px); border-left: 1px solid rgba(244,241,234,0.06); display: flex; flex-direction: column; min-height: 0; }
+  .chat { background: #0b0b0b; border-left: 1px solid rgba(244,241,234,0.08); display: flex; flex-direction: column; min-height: 0; }
   .chat-header { padding: 14px 16px; border-bottom: 1px solid rgba(244,241,234,0.06); }
   .chat-scroll { flex: 1; overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
   .chat-msg { font-size: 0.8rem; line-height: 1.4; color: rgba(244,241,234,0.85); }
@@ -407,7 +373,7 @@ wrangler deploy</pre>
   .chat-input input { flex: 1; background: rgba(244,241,234,0.05); border: 1px solid rgba(244,241,234,0.1); border-radius: 8px; padding: 7px 10px; color: #f4f1ea; font-size: 0.75rem; outline: none; }
   .chat-input button { background: #f4f1ea; color: #070707; border: none; border-radius: 8px; padding: 7px 12px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; cursor: pointer; }
 
-  .controls { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-top: 1px solid rgba(244,241,234,0.06); background: rgba(10,10,10,0.78); backdrop-filter: blur(22px); }
+  .controls { display: flex; align-items: center; gap: 12px; padding: 16px 22px; border-top: 1px solid rgba(244,241,234,0.08); background: #0a0a0a; }
   .ctrl { width: 42px; height: 42px; border-radius: 50%; background: rgba(244,241,234,0.06); border: 1px solid rgba(244,241,234,0.12); color: #f4f1ea; display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .ctrl:hover { background: rgba(244,241,234,0.12); }
   .ctrl.active { background: rgba(234,130,56,0.18); border-color: rgba(234,130,56,0.5); color: #ea8238; }
