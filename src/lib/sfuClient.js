@@ -68,6 +68,8 @@ export class SFUClient {
     this.midToPeerId = new Map();
     /** Set of peerIds we have successfully subscribed to */
     this.subscribedPeers = new Set();
+    /** Tracks that arrived before we could attribute them to a peer */
+    this.unattributedTracks = [];
 
     /** @type {Map<string, Function[]>} */
     this.listeners = new Map();
@@ -206,39 +208,72 @@ export class SFUClient {
       const mid = event.transceiver?.mid;
       console.log("[SFUClient] ontrack kind=", track.kind, "mid=", mid, "streamId=", stream?.id);
 
-      // Primary attribution: mid map pre-populated in _subscribeTo.
-      let peerId = mid ? (this.midToPeerId.get(mid) ?? null) : null;
-
-      // Fallback: try to match stream/track id against known trackNames.
-      if (!peerId && stream) {
-        const hint = stream.id || track.id;
-        for (const p of this.roster) {
-          if (
-            p.tracks?.audio?.trackName === hint ||
-            p.tracks?.video?.trackName === hint ||
-            (hint && hint.startsWith(p.peerId))
-          ) {
-            peerId = p.peerId;
-            break;
-          }
-        }
-      }
-
+      const peerId = this._attributeTrack(mid, stream, track);
       if (peerId) {
-        let ms = this.remoteStreams.get(peerId);
-        if (!ms) {
-          ms = new MediaStream();
-          this.remoteStreams.set(peerId, ms);
-        }
-        if (!ms.getTracks().some((t) => t.id === track.id)) {
-          ms.addTrack(track);
-        }
-        this.emit("remote-track", peerId, track, ms);
+        this._deliverTrack(peerId, track);
       } else {
-        console.warn("[SFUClient] ontrack could not attribute track to a peer. mid=", mid, "streamId=", stream?.id);
-        this.emit("remote-track", null, track, stream);
+        // Queue for later — subscribe hasn't mapped the mids yet
+        console.log("[SFUClient] ontrack queued (no peer yet) mid=", mid);
+        this.unattributedTracks.push({ track, stream, mid });
       }
     });
+
+  _attributeTrack(mid, stream, track) {
+    // 1. Mid map (populated by _subscribeTo)
+    let peerId = mid != null ? (this.midToPeerId.get(String(mid)) ?? null) : null;
+
+    // 2. Track name / stream ID fallback
+    if (!peerId && stream) {
+      const hint = stream.id || track.id;
+      for (const p of this.roster) {
+        if (
+          p.tracks?.audio?.trackName === hint ||
+          p.tracks?.video?.trackName === hint ||
+          (hint && hint.startsWith(p.peerId))
+        ) {
+          peerId = p.peerId;
+          break;
+        }
+      }
+    }
+
+    // 3. If only one participant in roster, all tracks belong to them
+    if (!peerId) {
+      const candidates = this.roster.filter((p) => p.peerId !== this.peerId && p.sessionId);
+      if (candidates.length === 1) {
+        peerId = candidates[0].peerId;
+      }
+    }
+
+    return peerId;
+  }
+
+  _deliverTrack(peerId, track) {
+    let ms = this.remoteStreams.get(peerId);
+    if (!ms) {
+      ms = new MediaStream();
+      this.remoteStreams.set(peerId, ms);
+    }
+    if (!ms.getTracks().some((t) => t.id === track.id)) {
+      ms.addTrack(track);
+    }
+    this.emit("remote-track", peerId, track, ms);
+  }
+
+  /** Try to deliver any queued tracks that arrived before mid mapping was ready */
+  _flushUnattributedTracks() {
+    const remaining = [];
+    for (const entry of this.unattributedTracks) {
+      const peerId = this._attributeTrack(entry.mid, entry.stream, entry.track);
+      if (peerId) {
+        console.log("[SFUClient] flushed queued track to", peerId, "kind=", entry.track.kind);
+        this._deliverTrack(peerId, entry.track);
+      } else {
+        remaining.push(entry);
+      }
+    }
+    this.unattributedTracks = remaining;
+  }
 
     // Build the initial offer. For participants with no addTransceiver calls
     // yet, this is an empty offer (just ICE params). Once publishMedia is
@@ -393,6 +428,7 @@ export class SFUClient {
       try {
         await this._subscribeTo(peer.peerId);
         this.subscribedPeers.add(peer.peerId);
+        this._flushUnattributedTracks();
         console.log("[SFUClient] subscribed to", peer.peerId, "OK");
       } catch (e) {
         console.warn("[SFUClient] subscribe failed for", peer.peerId, e?.message);
@@ -427,7 +463,10 @@ export class SFUClient {
       }
       if (subscribed > 0) {
         console.log(`[SFUClient] sweep #${this._subscribeSweepCount} subscribed to ${subscribed} new peers`);
+        this._flushUnattributedTracks();
       }
+      // Also flush even if no new subscribes — roster may have updated
+      this._flushUnattributedTracks();
       // Keep sweeping if there are still unsubscribed peers
       const unsubscribed = this.roster.filter(
         (p) => p.peerId !== this.peerId && p.sessionId && !this.subscribedPeers.has(p.peerId)
@@ -540,6 +579,7 @@ export class SFUClient {
           if (this.sessionId && msg.peer.sessionId && !this.subscribedPeers.has(msg.peer.peerId)) {
             this._subscribeTo(msg.peer.peerId).then(() => {
               this.subscribedPeers.add(msg.peer.peerId);
+              this._flushUnattributedTracks();
               console.log("[SFUClient] auto-subscribed to new peer", msg.peer.peerId);
             }).catch((e) => {
               console.warn("[SFUClient] auto-subscribe to new peer failed:", e?.message);
