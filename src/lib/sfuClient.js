@@ -248,15 +248,12 @@ export class SFUClient {
     }
 
     // For participants, we defer session creation until publishMedia(); for
-    // audience, we create the session immediately so they can subscribe.
+    // audience, we create the session AND subscribe to all publishers in one
+    // atomic SFU call. This avoids the ICE race where a bare recvonly session
+    // hasn't connected before we try to add remote tracks.
     if (this.role === "audience") {
       const offer = await this._makeOffer();
-      await this._createSfuSession(offer);
-      // Audience sessions have only recvonly transceivers — the PeerConnection
-      // may not reach "connected" until actual tracks are subscribed and flowing.
-      // Skip the connection wait and subscribe immediately; the SFU session is
-      // ready once sessions/new returns a valid answer.
-      await this._subscribeToRoster();
+      await this._audienceSubscribeAll(offer);
     }
   }
 
@@ -374,6 +371,91 @@ export class SFUClient {
     await this._waitForMessage("sfu-tracks-registered");
 
     await this._subscribeToRoster();
+  }
+
+  /**
+   * Audience-only: create session + subscribe to all publishers in one atomic
+   * server call. The signaling server bundles remote tracks into sessions/new
+   * so the SFU has media to send immediately, avoiding the ICE stall.
+   */
+  async _audienceSubscribeAll(offer) {
+    this._send({
+      type: "sfu-audience-subscribe-all",
+      offer: { sdp: offer.sdp },
+    });
+    const result = await this._waitForMessage("sfu-audience-subscribe-all-result");
+
+    this.sessionId = result.sessionId;
+
+    // The SDP might be an answer (no tracks) or an offer (with tracks)
+    const sdpType = result.subscribedPeerIds?.length > 0 ? "offer" : "answer";
+    console.log("[SFUClient] audience subscribe-all: sessionId=", result.sessionId,
+      "peers=", result.subscribedPeerIds?.length, "sdpType=", sdpType);
+
+    if (sdpType === "answer") {
+      // No publishers yet — just apply the answer and wait for peer-joined
+      await this.pc.setRemoteDescription({ type: "answer", sdp: result.answer.sdp });
+    } else {
+      // Map mids to peer IDs before applying the offer (ontrack fires synchronously)
+      const existingMids = new Set(
+        this.pc.getTransceivers().map((t) => t.mid).filter(Boolean)
+      );
+      const midMatches = [...result.answer.sdp.matchAll(/^a=mid:(\S+)/gm)];
+      // Assign new mids round-robin to subscribed peers based on track order
+      let trackIdx = 0;
+      const peerTracks = [];
+      for (const pid of result.subscribedPeerIds || []) {
+        const peer = this.roster.find((p) => p.peerId === pid);
+        if (peer?.tracks?.audio) peerTracks.push({ mid: null, peerId: pid });
+        if (peer?.tracks?.video) peerTracks.push({ mid: null, peerId: pid });
+      }
+      for (const m of midMatches) {
+        const mid = m[1];
+        if (!existingMids.has(mid) && !this.midToPeerId.has(mid)) {
+          if (trackIdx < peerTracks.length) {
+            this.midToPeerId.set(mid, peerTracks[trackIdx].peerId);
+            trackIdx++;
+          } else {
+            // Extra mids — try to assign from the result tracks
+            const rosterPeer = result.subscribedPeerIds?.[0];
+            if (rosterPeer) this.midToPeerId.set(mid, rosterPeer);
+          }
+        }
+      }
+
+      // Apply as offer, create answer, send renegotiate
+      await this.pc.setRemoteDescription({ type: "offer", sdp: result.answer.sdp });
+      const answer = await this.pc.createAnswer();
+      await this.pc.setLocalDescription(answer);
+      this._send({ type: "sfu-renegotiate", answer: { sdp: answer.sdp } });
+      try {
+        await this._waitForMessage("sfu-renegotiate-result");
+      } catch (e) {
+        console.warn("[SFUClient] audience renegotiate:", e?.message);
+      }
+    }
+
+    // Mark subscribed peers
+    for (const pid of result.subscribedPeerIds || []) {
+      this.subscribedPeers.add(pid);
+    }
+
+    // Track names for fallback attribution
+    if (result.tracks) {
+      for (const t of result.tracks) {
+        // Find which peer owns this track
+        for (const pid of result.subscribedPeerIds || []) {
+          const peer = this.roster.find((p) => p.peerId === pid);
+          if (peer?.tracks?.audio?.trackName === t.trackName ||
+              peer?.tracks?.video?.trackName === t.trackName) {
+            this.trackNameToPeer.set(t.trackName, pid);
+          }
+        }
+      }
+    }
+
+    // Schedule sweeps for any unsubscribed peers
+    this._scheduleSubscribeSweep();
   }
 
   async _subscribeToRoster() {
