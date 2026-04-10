@@ -66,6 +66,8 @@ export class SFUClient {
     this.trackNameToPeer = new Map();
     /** transceiver mid → peerId, populated before each subscribe setRemoteDescription */
     this.midToPeerId = new Map();
+    /** Set of peerIds we have successfully subscribed to */
+    this.subscribedPeers = new Set();
 
     /** @type {Map<string, Function[]>} */
     this.listeners = new Map();
@@ -375,31 +377,55 @@ export class SFUClient {
   }
 
   async _subscribeToRoster() {
-    const failed = [];
     for (const peer of this.roster) {
       if (peer.peerId === this.peerId) continue;
       if (!peer.sessionId) continue;
+      if (this.subscribedPeers.has(peer.peerId)) continue;
       try {
         await this._subscribeTo(peer.peerId);
+        this.subscribedPeers.add(peer.peerId);
       } catch (e) {
         console.warn("[SFUClient] subscribe failed for", peer.peerId, e?.message);
-        // Track might not be registered yet — retry later
-        if (e?.serverError) failed.push(peer.peerId);
       }
     }
-    // Retry failed subscriptions after a delay (tracks may still be registering)
-    if (failed.length > 0) {
-      setTimeout(async () => {
-        for (const peerId of failed) {
-          if (this.closed) return;
-          const peer = this.roster.find((p) => p.peerId === peerId);
-          if (!peer?.sessionId) continue;
-          await this._subscribeTo(peerId).catch((e) => {
-            console.error("[SFUClient] retry subscribe failed for", peerId, e?.message);
-          });
+    // Schedule a sweep to catch any peers we missed (tracks not registered
+    // yet, late joiners during the loop, transient errors). Runs 3 times
+    // at increasing intervals.
+    this._scheduleSubscribeSweep();
+  }
+
+  _subscribeSweepCount = 0;
+
+  _scheduleSubscribeSweep() {
+    if (this._subscribeSweepCount >= 3) return;
+    const delay = [2000, 5000, 10000][this._subscribeSweepCount] || 10000;
+    this._subscribeSweepCount++;
+    setTimeout(async () => {
+      if (this.closed) return;
+      let subscribed = 0;
+      for (const peer of this.roster) {
+        if (peer.peerId === this.peerId) continue;
+        if (!peer.sessionId) continue;
+        if (this.subscribedPeers.has(peer.peerId)) continue;
+        try {
+          await this._subscribeTo(peer.peerId);
+          this.subscribedPeers.add(peer.peerId);
+          subscribed++;
+        } catch (e) {
+          console.warn("[SFUClient] sweep subscribe failed for", peer.peerId, e?.message);
         }
-      }, 2000);
-    }
+      }
+      if (subscribed > 0) {
+        console.log(`[SFUClient] sweep #${this._subscribeSweepCount} subscribed to ${subscribed} new peers`);
+      }
+      // Keep sweeping if there are still unsubscribed peers
+      const unsubscribed = this.roster.filter(
+        (p) => p.peerId !== this.peerId && p.sessionId && !this.subscribedPeers.has(p.peerId)
+      );
+      if (unsubscribed.length > 0) {
+        this._scheduleSubscribeSweep();
+      }
+    }, delay);
   }
 
   async _subscribeTo(fromPeerId) {
@@ -428,9 +454,15 @@ export class SFUClient {
     const answer = await this.pc.createAnswer();
     await this.pc.setLocalDescription(answer);
 
-    if (result.requiresImmediateRenegotiation) {
-      this._send({ type: "sfu-renegotiate", answer: { sdp: answer.sdp } });
+    // Always send the answer back to the SFU after applying a subscribe offer.
+    // Some Cloudflare Realtime sessions need this even when
+    // requiresImmediateRenegotiation is false — without it, tracks don't flow.
+    this._send({ type: "sfu-renegotiate", answer: { sdp: answer.sdp } });
+    try {
       await this._waitForMessage("sfu-renegotiate-result");
+    } catch (e) {
+      // Non-fatal — tracks may still flow even if renegotiate "fails"
+      console.warn("[SFUClient] renegotiate after subscribe:", e?.message);
     }
 
     // Also remember trackNames → peerId for any late fallback lookups.
@@ -449,21 +481,22 @@ export class SFUClient {
     let msg;
     try { msg = JSON.parse(raw); } catch { return; }
 
-    // Resolve any pending waitForMessage promises — either matching the
-    // requested type, or a server error that we should turn into a reject.
+    // Resolve any pending waitForMessage promises.
+    // Server errors only reject the OLDEST pending waiter (not all of them),
+    // so one failed subscribe doesn't cascade and kill unrelated operations.
     for (let i = this._pendingMatches.length - 1; i >= 0; i--) {
       const p = this._pendingMatches[i];
       if (msg.type === p.type && (!p.predicate || p.predicate(msg))) {
         this._pendingMatches.splice(i, 1);
         p.resolve(msg);
-      } else if (msg.type === "error") {
-        // Any server error aborts every pending waiter so the user sees
-        // the real reason instead of a generic 15-second timeout.
-        this._pendingMatches.splice(i, 1);
-        const err = new Error(msg.message || "server error");
-        err.serverError = true;
-        p.reject(err);
+        return; // matched — don't fall through to the switch
       }
+    }
+    if (msg.type === "error" && this._pendingMatches.length > 0) {
+      const p = this._pendingMatches.shift();
+      const err = new Error(msg.message || "server error");
+      err.serverError = true;
+      p.reject(err);
     }
 
     switch (msg.type) {
@@ -474,16 +507,30 @@ export class SFUClient {
         this.roster = msg.participants || [];
         this.audienceCount = msg.audienceCount || 0;
         this.emit("roster", this.roster, this.audienceCount);
+        // Check if any new peers need subscribing
+        if (this.sessionId) {
+          const unsubscribed = this.roster.filter(
+            (p) => p.peerId !== this.peerId && p.sessionId && !this.subscribedPeers.has(p.peerId)
+          );
+          if (unsubscribed.length > 0) {
+            // Reset sweep counter so we get fresh retries
+            this._subscribeSweepCount = 0;
+            this._scheduleSubscribeSweep();
+          }
+        }
         break;
       case "peer-joined":
         if (msg.peer?.peerId && msg.peer.peerId !== this.peerId) {
-          // New publisher — we need to subscribe to them.
           this.roster = [...this.roster.filter((p) => p.peerId !== msg.peer.peerId), msg.peer];
           this.emit("peer-joined", msg.peer);
-          // Only auto-subscribe if we already have an SFU session
-          if (this.sessionId && msg.peer.sessionId) {
-            this._subscribeTo(msg.peer.peerId).catch((e) => {
+          // Auto-subscribe if we have a session and haven't subscribed yet
+          if (this.sessionId && msg.peer.sessionId && !this.subscribedPeers.has(msg.peer.peerId)) {
+            this._subscribeTo(msg.peer.peerId).then(() => {
+              this.subscribedPeers.add(msg.peer.peerId);
+              console.log("[SFUClient] auto-subscribed to new peer", msg.peer.peerId);
+            }).catch((e) => {
               console.warn("[SFUClient] auto-subscribe to new peer failed:", e?.message);
+              // Will be picked up by the sweep
             });
           }
         }
@@ -491,6 +538,7 @@ export class SFUClient {
       case "peer-left":
         this.roster = this.roster.filter((p) => p.peerId !== msg.peerId);
         this.remoteStreams.delete(msg.peerId);
+        this.subscribedPeers.delete(msg.peerId);
         this.emit("peer-left", msg.peerId);
         break;
       case "peer-state":
