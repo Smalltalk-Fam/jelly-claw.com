@@ -237,12 +237,18 @@ export class SFUClient {
       }
     }
 
-    // 3. If only one participant in roster, all tracks belong to them
+    // 3. If only one other person in roster, all tracks must be theirs.
+    //    Don't require sessionId — it may not be set yet during publish.
     if (!peerId) {
-      const candidates = this.roster.filter((p) => p.peerId !== this.peerId && p.sessionId);
-      if (candidates.length === 1) {
-        peerId = candidates[0].peerId;
+      const others = this.roster.filter((p) => p.peerId !== this.peerId);
+      if (others.length === 1) {
+        peerId = others[0].peerId;
       }
+    }
+
+    // 4. If we've subscribed to exactly one peer, tracks belong to them
+    if (!peerId && this.subscribedPeers.size === 1) {
+      peerId = this.subscribedPeers.values().next().value;
     }
 
     return peerId;
