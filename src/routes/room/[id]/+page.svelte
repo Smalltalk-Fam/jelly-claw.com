@@ -232,13 +232,6 @@
     <div class="backdrop-grid"></div>
   </div>
 
-  <!-- Screenshot branding banner -->
-  <div class="brand-banner" aria-hidden="true">
-    <span class="brand-host">{brandHost}</span>
-    <span class="brand-sep">//</span>
-    <span class="brand-tag">AGENTIC SOCIAL MEDIA</span>
-  </div>
-
   <!-- Top bar -->
   <header class="topbar">
     <div class="brand">
@@ -263,6 +256,13 @@
       </button>
     </div>
   </header>
+
+  <!-- Screenshot branding banner — flow position, centered, below the topbar -->
+  <div class="brand-banner" aria-hidden="true">
+    <span class="brand-host">{brandHost}</span>
+    <span class="brand-sep">//</span>
+    <span class="brand-tag">AGENTIC SOCIAL MEDIA</span>
+  </div>
 
   <!-- Main area -->
   <main class="main" class:with-chat={isChatOpen}>
@@ -454,23 +454,22 @@ wrangler deploy</pre>
     opacity: 0.35;
   }
 
-  /* Screenshot banner */
+  /* Screenshot banner — sits in the document flow, centered below the
+     topbar so it always shows up in screenshots of the call. */
   .brand-banner {
-    position: absolute;
-    top: 14px;
-    right: 22px;
-    z-index: 3;
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
-    padding: 6px 14px;
+    padding: 8px 14px 10px;
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     font-weight: 600;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(244, 241, 234, 0.1);
-    border-radius: 999px;
+    background: rgba(0,0,0,0.32);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(244, 241, 234, 0.05);
     pointer-events: none;
   }
   .brand-host {

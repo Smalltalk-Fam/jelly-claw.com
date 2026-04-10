@@ -232,12 +232,6 @@
     <div class="backdrop-orange"></div>
     <div class="backdrop-grid"></div>
   </div>
-  <div class="brand-banner" aria-hidden="true">
-    <span class="brand-host">{brandHost}</span>
-    <span class="brand-sep">//</span>
-    <span class="brand-tag">AGENTIC SOCIAL MEDIA</span>
-  </div>
-
   <header class="topbar">
     <div class="brand">
       <span class="eyebrow">JELLY CLAW / VOICE ROOM</span>
@@ -254,6 +248,12 @@
       </button>
     </div>
   </header>
+
+  <div class="brand-banner" aria-hidden="true">
+    <span class="brand-host">{brandHost}</span>
+    <span class="brand-sep">//</span>
+    <span class="brand-tag">AGENTIC SOCIAL MEDIA</span>
+  </div>
 
   <main class="main" class:with-chat={isChatOpen}>
     <div class="stage">
@@ -360,7 +360,7 @@ wrangler deploy</pre>
   .backdrop-orange { position: absolute; inset: 0; background: radial-gradient(circle at 10% 90%, rgba(234,130,56,0.32), transparent 40%); mix-blend-mode: screen; }
   .backdrop-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 72px 72px; opacity: 0.35; }
 
-  .brand-banner { position: absolute; top: 14px; right: 22px; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); border: 1px solid rgba(244,241,234,0.1); border-radius: 999px; pointer-events: none; }
+  .brand-banner { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 14px 10px; background: rgba(0,0,0,0.32); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(244,241,234,0.05); pointer-events: none; }
   .brand-host { color: rgba(244,241,234,0.95); font-family: 'Forum', serif; font-size: 0.95rem; letter-spacing: 0.02em; }
   .brand-sep { color: rgba(234,130,56,0.8); font-size: 0.8rem; }
   .brand-tag { color: rgba(244,241,234,0.55); font-size: 0.58rem; letter-spacing: 0.22em; font-weight: 600; }
