@@ -218,6 +218,25 @@ export class SFUClient {
       }
     });
 
+    // Build the initial offer. Add dummy recvonly transceivers so the SDP is valid.
+    this.pc.addTransceiver("audio", { direction: "recvonly" });
+    if (this.mode === "video") {
+      this.pc.addTransceiver("video", { direction: "recvonly" });
+    }
+
+    // For participants, we defer session creation until publishMedia(); for
+    // audience, we create the session then subscribe to all publishers.
+    if (this.role === "audience") {
+      const offer = await this._makeOffer();
+      await this._createSfuSession(offer);
+      // Give ICE a moment to settle. If it doesn't, proceed — sweeps will retry.
+      await this._waitForConnection(5000).catch(() => {
+        console.warn("[SFUClient] audience ICE didn't connect in 5s, proceeding anyway");
+      });
+      await this._subscribeToRoster();
+    }
+  }
+
   _attributeTrack(mid, stream, track) {
     // 1. Mid map (populated by _subscribeTo)
     let peerId = mid != null ? (this.midToPeerId.get(String(mid)) ?? null) : null;
@@ -279,30 +298,6 @@ export class SFUClient {
       }
     }
     this.unattributedTracks = remaining;
-  }
-
-    // Build the initial offer. For participants with no addTransceiver calls
-    // yet, this is an empty offer (just ICE params). Once publishMedia is
-    // called, renegotiation will happen via the tracks/new flow.
-    // For now we add a dummy recvonly audio transceiver so the SDP is valid.
-    this.pc.addTransceiver("audio", { direction: "recvonly" });
-    if (this.mode === "video") {
-      this.pc.addTransceiver("video", { direction: "recvonly" });
-    }
-
-    // For participants, we defer session creation until publishMedia(); for
-    // audience, we create the session then subscribe to all publishers.
-    if (this.role === "audience") {
-      const offer = await this._makeOffer();
-      await this._createSfuSession(offer);
-      // Give ICE a moment to settle — Cloudflare's ice-lite SFU usually
-      // completes DTLS within 1-2s even for recvonly sessions. If it
-      // doesn't, proceed anyway — the subscribe sweep will retry.
-      await this._waitForConnection(5000).catch(() => {
-        console.warn("[SFUClient] audience ICE didn't connect in 5s, proceeding anyway");
-      });
-      await this._subscribeToRoster();
-    }
   }
 
   _waitForConnection(timeoutMs = 20000) {
