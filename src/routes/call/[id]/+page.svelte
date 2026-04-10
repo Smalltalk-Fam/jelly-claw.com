@@ -344,6 +344,17 @@
 		status = 'ended';
 	}
 
+	async function rejoinCall() {
+		cleanup();
+		isMuted = false;
+		isCameraOff = false;
+		pcReady = false;
+		pendingPeerJoined = false;
+		elapsedSeconds = 0;
+		status = 'connecting';
+		await startCall();
+	}
+
 	function cleanup() {
 		stopTimer();
 		if (keepaliveInterval) { clearInterval(keepaliveInterval); keepaliveInterval = null; }
@@ -441,6 +452,7 @@
 		{:else if status === 'ended'}
 			<div class="error-overlay">
 				<p class="ended-icon">Call ended</p>
+				<button class="rejoin-btn" onclick={rejoinCall}>Rejoin Call</button>
 			</div>
 		{:else}
 			<!-- Remote video (host) -->
@@ -789,6 +801,21 @@
 		letter-spacing: 0.04em;
 		opacity: 0.6;
 	}
+
+	.rejoin-btn {
+		margin-top: 1.2rem;
+		padding: 12px 28px;
+		border-radius: 24px;
+		border: none;
+		background: #34c759;
+		color: #fff;
+		font-size: 1rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.15s, transform 0.1s;
+	}
+	.rejoin-btn:hover { background: #2db84e; }
+	.rejoin-btn:active { transform: scale(0.95); }
 
 	/* --- PiP local video --- */
 	.pip-container {
