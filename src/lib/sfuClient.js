@@ -416,6 +416,33 @@ export class SFUClient {
     await this._subscribeToRoster();
   }
 
+  /**
+   * Check for any unsubscribed peers and subscribe to them.
+   * Called from roster updates and peer-joined events.
+   * Safe to call even before our own SFU session is ready —
+   * subscribes will be queued until _subscribeToRoster runs.
+   */
+  _subscribeNewPeers() {
+    if (!this.sessionId) {
+      // Our SFU session isn't ready yet. Schedule a sweep for when it is.
+      this._subscribeSweepCount = 0;
+      this._scheduleSubscribeSweep();
+      return;
+    }
+    const unsubscribed = this.roster.filter(
+      (p) => p.peerId !== this.peerId && p.sessionId && !this.subscribedPeers.has(p.peerId)
+    );
+    for (const peer of unsubscribed) {
+      this._subscribeTo(peer.peerId).then(() => {
+        this.subscribedPeers.add(peer.peerId);
+        this._flushUnattributedTracks();
+        console.log("[SFUClient] subscribed to", peer.peerId.slice(0, 8), "from roster/peer-joined");
+      }).catch((e) => {
+        console.warn("[SFUClient] subscribe failed:", peer.peerId.slice(0, 8), e?.message);
+      });
+    }
+  }
+
   async _subscribeToRoster() {
     console.log("[SFUClient] _subscribeToRoster: roster has", this.roster.length, "peers, sessionId=", this.sessionId);
     for (const peer of this.roster) {
@@ -560,33 +587,17 @@ export class SFUClient {
         this.roster = msg.participants || [];
         this.audienceCount = msg.audienceCount || 0;
         this.emit("roster", this.roster, this.audienceCount);
-        // Check if any new peers need subscribing
-        if (this.sessionId) {
-          const unsubscribed = this.roster.filter(
-            (p) => p.peerId !== this.peerId && p.sessionId && !this.subscribedPeers.has(p.peerId)
-          );
-          if (unsubscribed.length > 0) {
-            // Reset sweep counter so we get fresh retries
-            this._subscribeSweepCount = 0;
-            this._scheduleSubscribeSweep();
-          }
-        }
+        // Subscribe to any new peers that have a sessionId and tracks.
+        // Don't gate on this.sessionId — _subscribeTo will wait if needed.
+        this._subscribeNewPeers();
+        // Also flush any queued tracks in case attribution now works
+        this._flushUnattributedTracks();
         break;
       case "peer-joined":
         if (msg.peer?.peerId && msg.peer.peerId !== this.peerId) {
           this.roster = [...this.roster.filter((p) => p.peerId !== msg.peer.peerId), msg.peer];
           this.emit("peer-joined", msg.peer);
-          // Auto-subscribe if we have a session and haven't subscribed yet
-          if (this.sessionId && msg.peer.sessionId && !this.subscribedPeers.has(msg.peer.peerId)) {
-            this._subscribeTo(msg.peer.peerId).then(() => {
-              this.subscribedPeers.add(msg.peer.peerId);
-              this._flushUnattributedTracks();
-              console.log("[SFUClient] auto-subscribed to new peer", msg.peer.peerId);
-            }).catch((e) => {
-              console.warn("[SFUClient] auto-subscribe to new peer failed:", e?.message);
-              // Will be picked up by the sweep
-            });
-          }
+          this._subscribeNewPeers();
         }
         break;
       case "peer-left":
