@@ -10,7 +10,10 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "checkJs": true
+    "checkJs": true,
+    "types": [
+      "./worker-configuration.d.ts"
+    ]
   },
   "include": [
     ".svelte-kit/ambient.d.ts",
