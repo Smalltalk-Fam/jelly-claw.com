@@ -250,9 +250,10 @@ export class SFUClient {
     if (this.role === "audience") {
       const offer = await this._makeOffer();
       await this._createSfuSession(offer);
-      // Wait for the PeerConnection to fully connect before subscribing —
-      // Cloudflare Realtime refuses tracks/new calls on "unready" sessions.
-      await this._waitForConnection();
+      // Audience sessions have only recvonly transceivers — the PeerConnection
+      // may not reach "connected" until actual tracks are subscribed and flowing.
+      // Skip the connection wait and subscribe immediately; the SFU session is
+      // ready once sessions/new returns a valid answer.
       await this._subscribeToRoster();
     }
   }
@@ -374,12 +375,30 @@ export class SFUClient {
   }
 
   async _subscribeToRoster() {
+    const failed = [];
     for (const peer of this.roster) {
       if (peer.peerId === this.peerId) continue;
       if (!peer.sessionId) continue;
-      await this._subscribeTo(peer.peerId).catch((e) => {
-        console.error("[SFUClient] subscribe failed for", peer.peerId, e);
-      });
+      try {
+        await this._subscribeTo(peer.peerId);
+      } catch (e) {
+        console.warn("[SFUClient] subscribe failed for", peer.peerId, e?.message);
+        // Track might not be registered yet — retry later
+        if (e?.serverError) failed.push(peer.peerId);
+      }
+    }
+    // Retry failed subscriptions after a delay (tracks may still be registering)
+    if (failed.length > 0) {
+      setTimeout(async () => {
+        for (const peerId of failed) {
+          if (this.closed) return;
+          const peer = this.roster.find((p) => p.peerId === peerId);
+          if (!peer?.sessionId) continue;
+          await this._subscribeTo(peerId).catch((e) => {
+            console.error("[SFUClient] retry subscribe failed for", peerId, e?.message);
+          });
+        }
+      }, 2000);
     }
   }
 
@@ -461,7 +480,12 @@ export class SFUClient {
           // New publisher — we need to subscribe to them.
           this.roster = [...this.roster.filter((p) => p.peerId !== msg.peer.peerId), msg.peer];
           this.emit("peer-joined", msg.peer);
-          this._subscribeTo(msg.peer.peerId).catch((e) => console.error(e));
+          // Only auto-subscribe if we already have an SFU session
+          if (this.sessionId && msg.peer.sessionId) {
+            this._subscribeTo(msg.peer.peerId).catch((e) => {
+              console.warn("[SFUClient] auto-subscribe to new peer failed:", e?.message);
+            });
+          }
         }
         break;
       case "peer-left":
