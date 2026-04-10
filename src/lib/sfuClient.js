@@ -443,20 +443,23 @@ export class SFUClient {
     const result = await this._waitForMessage("sfu-subscribe-result", (m) => m.fromPeerId === fromPeerId);
 
     // Parse mid values out of the SFU's offer SDP and attribute any mid
-    // that we don't already own to `fromPeerId`. This must happen BEFORE
-    // setRemoteDescription because ontrack fires synchronously inside that
-    // call and we need the lookup ready by then.
-    const existingMids = new Set(
-      this.pc.getTransceivers().map((t) => t.mid).filter(Boolean)
-    );
+    // that doesn't already have a peer mapping to `fromPeerId`. This must
+    // happen BEFORE setRemoteDescription because ontrack fires synchronously
+    // inside that call and we need the lookup ready by then.
+    //
+    // NOTE: We do NOT filter by existingMids — the SFU may reuse the initial
+    // recvonly transceivers (mid 0, 1) for the first subscription instead of
+    // adding new m-lines. Those mids need to be mapped too.
     const midMatches = [...result.offer.sdp.matchAll(/^a=mid:(\S+)/gm)];
+    const mapped = [];
     for (const m of midMatches) {
       const mid = m[1];
-      if (!existingMids.has(mid) && !this.midToPeerId.has(mid)) {
+      if (!this.midToPeerId.has(mid)) {
         this.midToPeerId.set(mid, fromPeerId);
+        mapped.push(mid);
       }
     }
-    console.log("[SFUClient] subscribe to", fromPeerId, "new mids:", midMatches.map((m) => m[1]).filter((m) => !existingMids.has(m)));
+    console.log("[SFUClient] subscribe to", fromPeerId, "mapped mids:", mapped);
 
     // Now apply the offer — ontrack will fire with transceivers whose mids
     // are in midToPeerId.
