@@ -30,7 +30,7 @@
 		</svg>
 		Download for macOS
 	</a>
-	<p class="version">v1.2.0 · 3.0 MB · macOS 12+ · Apple Silicon</p>
+	<p class="version">v1.3.0 · 3.0 MB · macOS 12+ · Apple Silicon</p>
 	<a href="/pricing" class="pricing-link">See pricing →</a>
 
 	<div class="features">
@@ -129,17 +129,13 @@
 	</div>
 
 	<div class="changelog">
-		<h4>What's new in v1.2.0</h4>
+		<h4>What's new in v1.3.0</h4>
 		<ul>
-			<li>Phone sign-up: country code picker with flags (defaults to US +1)</li>
-			<li>Auto-focus inputs and auto-verify OTP on 6 digits</li>
-			<li>Fixed DM and group chat invite delivery</li>
-			<li>Contacts sidebar during calls — invite people with one tap</li>
-			<li>Guest rejoin: call links stay active after someone leaves</li>
-			<li>Deep link support (jellyclaw:// URLs open in the app)</li>
-			<li>Profile loads on launch (fixes "Not signed in" in settings)</li>
-			<li>Recording saves to per-call folders with video, audio, and thumbnail</li>
-			<li>1:1 call page rejoin button in the browser</li>
+			<li>Fixed call recording: audio now properly captured and muxed into video for Jelly posts</li>
+			<li>TURN relay servers for reliable 1:1 connections behind firewalls and mobile networks</li>
+			<li>Group call recording: fixed record button, added timer display with stop control</li>
+			<li>Clean recording folders: each call saves video.mp4, audio.wav, and thumbnail.jpg</li>
+			<li>"Open in app" banner on call pages for users with Jelly-Claw installed</li>
 		</ul>
 		<a href="/download/changelog" class="changelog-link">Full changelog →</a>
 	</div>

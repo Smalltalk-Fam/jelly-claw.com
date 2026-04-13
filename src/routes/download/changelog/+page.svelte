@@ -11,9 +11,23 @@
 
 	<section class="release current">
 		<div class="release-header">
-			<h2>v1.2.0</h2>
+			<h2>v1.3.0</h2>
 			<span class="date">April 13, 2026</span>
 			<a href="/Jelly-Claw.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Recording audio fix:</strong> Call recordings now properly capture audio from both participants. Replaced Safari-incompatible MediaRecorder with ScriptProcessor PCM capture for reliable mixed audio. Posted Jellies now have sound and can be transcribed.</li>
+			<li><strong>TURN relay servers:</strong> 1:1 calls now use Cloudflare TURN (UDP + TCP) as relay fallback. Fixes "Waiting for host" on mobile networks, corporate firewalls, and symmetric NAT.</li>
+			<li><strong>Group call recording:</strong> Fixed record button that was stuck (checked wrong state variable). Added recording timer with pulsing red dot and MM:SS counter. Stop button now works and shows "Post as Jelly" overlay.</li>
+			<li><strong>Clean recording folders:</strong> Each recording saves to a single folder with <code>video.mp4</code> (with audio), <code>audio.wav</code> (raw), and <code>thumbnail.jpg</code>. No more duplicate flat copies.</li>
+			<li><strong>"Open in app" banner:</strong> 1:1 call pages show a banner for Mac users with a <code>jellyclaw://</code> deep link to open the call in the native app.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
+			<h2>v1.2.0</h2>
+			<span class="date">April 13, 2026</span>
 		</div>
 		<ul>
 			<li><strong>Phone sign-up:</strong> Country code picker with flags when entering a phone number. Defaults to US (+1), supports 20 countries.</li>
@@ -23,7 +37,7 @@
 			<li><strong>Guest rejoin:</strong> When someone leaves a 1:1 call and clicks the link again, they can rejoin. Links stay active for 30 minutes.</li>
 			<li><strong>Deep links:</strong> <code>jellyclaw://</code> URL scheme registered. Call links can open directly in the app when installed.</li>
 			<li><strong>Profile on launch:</strong> Settings now shows your profile immediately after opening the app (previously showed "Not signed in" until you re-logged).</li>
-			<li><strong>Recording folders:</strong> Each recording now saves to its own folder with <code>video.mp4</code>, <code>audio.mp4</code>, and <code>thumbnail.jpg</code>.</li>
+			<li><strong>Recording folders:</strong> Each recording now saves to its own folder.</li>
 			<li><strong>Browser rejoin:</strong> 1:1 call pages in the browser show a "Rejoin Call" button after the call ends.</li>
 		</ul>
 	</section>
