@@ -82,9 +82,45 @@
 		</div>
 	</div>
 
-	<div class="install-note">
-		<h4>First launch</h4>
-		<p>Since this app isn't from the App Store, macOS may block it. Right-click the app → Open → click Open again. You only need to do this once.</p>
+	<div class="install-guide">
+		<h3>How to install</h3>
+		<div class="steps">
+			<div class="step">
+				<span class="step-num">1</span>
+				<div>
+					<h4>Open the DMG</h4>
+					<p>Double-click the downloaded <strong>Jelly-Claw.dmg</strong> file. Drag <strong>Jelly-Claw</strong> to the <strong>Applications</strong> folder.</p>
+				</div>
+			</div>
+			<div class="step">
+				<span class="step-num">2</span>
+				<div>
+					<h4>Allow the app to run</h4>
+					<p>macOS will block the app since it's not from the App Store. You'll see <em>"Jelly-Claw can't be opened."</em></p>
+					<p>Go to <strong>System Settings → Privacy & Security</strong>, scroll down, and click <strong>"Open Anyway"</strong> next to the Jelly-Claw message.</p>
+					<div class="screenshot-box">
+						<div class="screenshot-placeholder">
+							<span class="screenshot-icon">&#xF8FF;</span>
+							<span>System Settings → Privacy & Security → Open Anyway</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="step">
+				<span class="step-num">3</span>
+				<div>
+					<h4>Grant permissions</h4>
+					<p>On first launch, macOS will ask for <strong>camera</strong> and <strong>microphone</strong> access. Click <strong>Allow</strong> for both &mdash; these are needed for video calls and audio recording.</p>
+				</div>
+			</div>
+			<div class="step">
+				<span class="step-num">4</span>
+				<div>
+					<h4>Find it in your menu bar</h4>
+					<p>Jelly-Claw lives in your <strong>menu bar</strong> (top-right of your screen). Look for the jellyfish icon. Click it to open the panel.</p>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="install-note">
@@ -105,6 +141,7 @@
 			<li>Recording saves to per-call folders with video, audio, and thumbnail</li>
 			<li>1:1 call page rejoin button in the browser</li>
 		</ul>
+		<a href="/download/changelog" class="changelog-link">Full changelog →</a>
 	</div>
 
 	<div class="footer">
@@ -309,6 +346,87 @@
 		line-height: 1.5;
 	}
 
+	.install-guide {
+		margin-top: 3rem;
+		max-width: 500px;
+		width: 100%;
+	}
+
+	.install-guide h3 {
+		font-family: 'Forum', serif;
+		font-size: 1.3rem;
+		font-weight: 400;
+		margin: 0 0 1.2rem;
+		color: #f4f1ea;
+	}
+
+	.steps {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.step {
+		display: flex;
+		gap: 1rem;
+		padding: 1rem 1.2rem;
+		background: rgba(244, 241, 234, 0.03);
+		border: 1px solid rgba(244, 241, 234, 0.08);
+		border-radius: 12px;
+	}
+
+	.step-num {
+		flex-shrink: 0;
+		width: 28px;
+		height: 28px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(56, 152, 236, 0.15);
+		border: 1px solid rgba(56, 152, 236, 0.3);
+		border-radius: 50%;
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: #3898ec;
+	}
+
+	.step h4 {
+		font-size: 0.85rem;
+		font-weight: 600;
+		margin: 0 0 0.3rem;
+		color: rgba(244, 241, 234, 0.85);
+	}
+
+	.step p {
+		font-size: 0.75rem;
+		color: rgba(244, 241, 234, 0.5);
+		margin: 0 0 0.4rem;
+		line-height: 1.5;
+	}
+
+	.step strong { color: rgba(244, 241, 234, 0.8); }
+	.step em { color: rgba(234, 130, 56, 0.8); font-style: italic; }
+
+	.screenshot-box {
+		margin-top: 0.6rem;
+	}
+
+	.screenshot-placeholder {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 14px;
+		background: rgba(244, 241, 234, 0.04);
+		border: 1px dashed rgba(244, 241, 234, 0.12);
+		border-radius: 8px;
+		font-size: 0.7rem;
+		color: rgba(244, 241, 234, 0.4);
+	}
+
+	.screenshot-icon {
+		font-size: 1.1rem;
+	}
+
 	.install-note + .install-note {
 		margin-top: 1rem;
 	}
@@ -350,6 +468,16 @@
 		color: rgba(56, 152, 236, 0.7);
 		font-weight: 700;
 	}
+
+	.changelog-link {
+		display: inline-block;
+		margin-top: 0.8rem;
+		font-size: 0.75rem;
+		color: rgba(56, 152, 236, 0.9);
+		text-decoration: none;
+		letter-spacing: 0.03em;
+	}
+	.changelog-link:hover { color: #3898ec; }
 
 	.footer {
 		margin-top: 3rem;
