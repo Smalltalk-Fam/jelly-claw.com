@@ -30,7 +30,7 @@
 		</svg>
 		Download for macOS
 	</a>
-	<p class="version">v1.1.0 · 3.6 MB · macOS 12+ · universal (Intel + Apple Silicon)</p>
+	<p class="version">v1.2.0 · 3.0 MB · macOS 12+ · Apple Silicon</p>
 	<a href="/pricing" class="pricing-link">See pricing →</a>
 
 	<div class="features">
@@ -85,6 +85,26 @@
 	<div class="install-note">
 		<h4>First launch</h4>
 		<p>Since this app isn't from the App Store, macOS may block it. Right-click the app → Open → click Open again. You only need to do this once.</p>
+	</div>
+
+	<div class="install-note">
+		<h4>Updating from a previous version?</h4>
+		<p>Quit the existing Jelly-Claw from your menu bar (right-click the jellyfish icon → Quit), then drag the new version to Applications. It will replace the old one. Your account stays signed in.</p>
+	</div>
+
+	<div class="changelog">
+		<h4>What's new in v1.2.0</h4>
+		<ul>
+			<li>Phone sign-up: country code picker with flags (defaults to US +1)</li>
+			<li>Auto-focus inputs and auto-verify OTP on 6 digits</li>
+			<li>Fixed DM and group chat invite delivery</li>
+			<li>Contacts sidebar during calls — invite people with one tap</li>
+			<li>Guest rejoin: call links stay active after someone leaves</li>
+			<li>Deep link support (jellyclaw:// URLs open in the app)</li>
+			<li>Profile loads on launch (fixes "Not signed in" in settings)</li>
+			<li>Recording saves to per-call folders with video, audio, and thumbnail</li>
+			<li>1:1 call page rejoin button in the browser</li>
+		</ul>
 	</div>
 
 	<div class="footer">
@@ -287,6 +307,48 @@
 		color: rgba(244, 241, 234, 0.4);
 		margin: 0;
 		line-height: 1.5;
+	}
+
+	.install-note + .install-note {
+		margin-top: 1rem;
+	}
+
+	.changelog {
+		margin-top: 2rem;
+		max-width: 500px;
+		width: 100%;
+		padding: 1rem 1.2rem;
+		background: rgba(244, 241, 234, 0.03);
+		border: 1px solid rgba(244, 241, 234, 0.08);
+		border-radius: 10px;
+	}
+
+	.changelog h4 {
+		font-size: 0.8rem;
+		font-weight: 600;
+		margin: 0 0 0.6rem;
+		color: rgba(244, 241, 234, 0.7);
+	}
+
+	.changelog ul {
+		margin: 0;
+		padding-left: 1.2rem;
+		list-style: none;
+	}
+
+	.changelog li {
+		font-size: 0.75rem;
+		color: rgba(244, 241, 234, 0.45);
+		line-height: 1.7;
+		position: relative;
+	}
+
+	.changelog li::before {
+		content: '·';
+		position: absolute;
+		left: -0.9rem;
+		color: rgba(56, 152, 236, 0.7);
+		font-weight: 700;
 	}
 
 	.footer {
