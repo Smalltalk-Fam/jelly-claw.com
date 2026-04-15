@@ -142,6 +142,8 @@
 
 	<div class="footer">
 		<a href="/">jelly-claw.com</a>
+		<span class="dot">·</span>
+		<a href="/download/archives">Older versions</a>
 	</div>
 </div>
 
@@ -487,4 +489,5 @@
 	}
 
 	.footer a:hover { color: rgba(244, 241, 234, 0.5); }
+	.dot { color: rgba(244, 241, 234, 0.2); }
 </style>
