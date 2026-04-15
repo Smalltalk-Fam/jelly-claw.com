@@ -93,7 +93,6 @@
 	.logo-icon {
 		width: 32px;
 		height: 32px;
-		filter: brightness(0) invert(1);
 	}
 	.logo-text {
 		font-family: 'Forum', serif;
@@ -144,7 +143,6 @@
 		margin: 0;
 		padding: 1rem 1.2rem;
 		background: rgba(244, 241, 234, 0.03);
-		border: 1px solid rgba(244, 241, 234, 0.06);
 	}
 	.blocked-note strong {
 		color: rgba(244, 241, 234, 0.8);
@@ -201,8 +199,7 @@
 	.mockup {
 		width: 360px;
 		overflow: hidden;
-		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(244, 241, 234, 0.08) inset;
-		border: 1px solid rgba(244, 241, 234, 0.1);
+		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
 	}
 	.mockup-bar {
 		display: flex;
@@ -242,7 +239,6 @@
 		width: 80px;
 		height: 80px;
 		background: #1a1a1a;
-		border: 1px solid rgba(244, 241, 234, 0.1);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -251,7 +247,6 @@
 	.mockup-icon img {
 		width: 52px;
 		height: 52px;
-		filter: brightness(0) invert(1);
 	}
 
 	.mockup-arrow {
