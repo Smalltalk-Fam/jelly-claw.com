@@ -11,8 +11,8 @@
 
 	<section class="release current">
 		<div class="release-header">
-			<h2>v1.3.0</h2>
-			<span class="date">April 13, 2026</span>
+			<h2>v1.4.0</h2>
+			<span class="date">April 15, 2026</span>
 			<a href="/Jelly-Claw.dmg" download class="dl-pill">Download</a>
 		</div>
 		<ul>

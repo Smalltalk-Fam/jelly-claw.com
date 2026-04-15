@@ -45,7 +45,7 @@
 				</svg>
 				Download for macOS
 			</a>
-			<p class="version">v1.3.0 · 3.0 MB · macOS 12+ · Apple Silicon</p>
+			<p class="version">v1.4.0 · 3.0 MB · macOS 12+ · Apple Silicon</p>
 		</div>
 
 		<div class="hero-right">
@@ -124,13 +124,15 @@
 
 	<!-- ── What's new ── -->
 	<section class="changelog">
-		<h4>What's new in v1.3.0</h4>
+		<h4>What's new in v1.4.0</h4>
 		<ul>
-			<li>Fixed call recording: audio now properly captured and muxed into video for Jelly posts</li>
-			<li>TURN relay servers for reliable 1:1 connections behind firewalls and mobile networks</li>
-			<li>Group call recording: fixed record button, added timer display with stop control</li>
-			<li>Clean recording folders: each call saves video.mp4, audio.wav, and thumbnail.jpg</li>
-			<li>"Open in app" banner on call pages for users with Jelly-Claw installed</li>
+			<li>Quick Jelly: double-tap J anywhere to record, spacebar to post as unlisted Jelly</li>
+			<li>Build Your Jelly Fam: new onboarding with relationship types</li>
+			<li>Genie follow-ups: reply in wish rooms and Genie responds with context</li>
+			<li>All Genie updates stream to Jelly Chat in real-time</li>
+			<li>Dispatch persistence: wishes survive server restarts</li>
+			<li>Endless recording, deep links, copy feedback, session expiry banner</li>
+			<li>3 free wishes, 30 for Wobbles holders, then subscribe</li>
 		</ul>
 		<a href="/download/changelog" class="link">Full changelog &rarr;</a>
 	</section>
