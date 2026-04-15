@@ -1,22 +1,9 @@
-<script>
-	function startCall(kind) {
-		const id =
-			typeof crypto !== 'undefined' && 'randomUUID' in crypto
-				? crypto.randomUUID()
-				: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-		const prefix =
-			kind === 'one-on-one' ? '/call/' : kind === 'group' ? '/room/' : '/voice/';
-		window.location.href = `${prefix}${id}`;
-	}
-</script>
-
 <svelte:head>
 	<title>Download Jelly-Claw</title>
-	<meta name="description" content="Download Jelly-Claw for macOS — video calling, audio recording, and podcast clipping for Jelly users." />
+	<meta name="description" content="Download Jelly-Claw for macOS." />
 </svelte:head>
 
 <div class="page">
-	<!-- ── Hero: split layout ── -->
 	<section class="hero">
 		<div class="hero-left">
 			<div class="logo">
@@ -46,10 +33,10 @@
 				Download for macOS
 			</a>
 			<p class="version">v1.4.0 · 3.0 MB · macOS 12+ · Apple Silicon</p>
+			<a href="/download/changelog" class="changelog-link">Changelog &rarr;</a>
 		</div>
 
 		<div class="hero-right">
-			<!-- Stylised "DMG window" mockup -->
 			<div class="mockup">
 				<div class="mockup-bar">
 					<span class="dot red"></span>
@@ -71,84 +58,12 @@
 		</div>
 	</section>
 
-	<!-- ── Features ── -->
-	<section class="features">
-		<div class="feature">
-			<span class="feat-icon">📹</span>
-			<div>
-				<h3>Video Calling</h3>
-				<p>1:1 calls free forever. Group calls with up to 8 people + unlimited live spectators.</p>
-			</div>
-		</div>
-		<div class="feature">
-			<span class="feat-icon">🎙</span>
-			<div>
-				<h3>Voice Rooms</h3>
-				<p>Audio-only rooms with live listeners. Record and post directly as a Jelly.</p>
-			</div>
-		</div>
-		<div class="feature">
-			<span class="feat-icon">🎵</span>
-			<div>
-				<h3>Audio Capture</h3>
-				<p>Always-on 5-minute audio buffer. Clip and save the last thing you heard.</p>
-			</div>
-		</div>
-		<div class="feature">
-			<span class="feat-icon">🪼</span>
-			<div>
-				<h3>Jelly Integration</h3>
-				<p>Post clips, send DMs, browse contacts — all from your menu bar.</p>
-			</div>
-		</div>
-	</section>
-
-	<!-- ── Start a call from the browser ── -->
-	<section class="browser-calls">
-		<p class="eyebrow">OR START A CALL RIGHT FROM THE BROWSER</p>
-		<div class="call-options">
-			<button class="call-option" on:click={() => startCall('one-on-one')}>
-				<span class="option-title">1:1 CALL</span>
-				<span class="option-sub">just you and one other · free</span>
-			</button>
-			<button class="call-option" on:click={() => startCall('group')}>
-				<span class="option-title">GROUP CALL</span>
-				<span class="option-sub">up to 8 · live video spectators</span>
-			</button>
-			<button class="call-option" on:click={() => startCall('voice')}>
-				<span class="option-title">VOICE ROOM</span>
-				<span class="option-sub">up to 8 · live audio listeners</span>
-			</button>
-		</div>
-	</section>
-
-	<!-- ── What's new ── -->
-	<section class="changelog">
-		<h4>What's new in v1.4.0</h4>
-		<ul>
-			<li>Quick Jelly: double-tap J anywhere to record, spacebar to post as unlisted Jelly</li>
-			<li>Build Your Jelly Fam: new onboarding with relationship types</li>
-			<li>Genie follow-ups: reply in wish rooms and Genie responds with context</li>
-			<li>All Genie updates stream to Jelly Chat in real-time</li>
-			<li>Dispatch persistence: wishes survive server restarts</li>
-			<li>Endless recording, deep links, copy feedback, session expiry banner</li>
-			<li>3 free wishes, 30 for Wobbles holders, then subscribe</li>
-		</ul>
-		<a href="/download/changelog" class="link">Full changelog &rarr;</a>
-	</section>
-
-	<!-- ── Footer ── -->
 	<div class="footer">
 		<a href="/">jelly-claw.com</a>
-		<span class="dot-sep">·</span>
-		<a href="/download/archives">Older versions</a>
-		<span class="dot-sep">·</span>
-		<a href="/pricing">Pricing</a>
 	</div>
 </div>
 
 <style>
-	/* ── Reset + base ── */
 	.page {
 		min-height: 100vh;
 		background: #070707;
@@ -156,7 +71,6 @@
 		font-family: 'Montserrat', 'Helvetica Neue', sans-serif;
 	}
 
-	/* ── Hero: split ── */
 	.hero {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -230,8 +144,7 @@
 		margin: 0;
 		padding: 1rem 1.2rem;
 		background: rgba(244, 241, 234, 0.03);
-		border: 1px solid rgba(244, 241, 234, 0.08);
-		border-radius: 10px;
+		border: 1px solid rgba(244, 241, 234, 0.06);
 	}
 	.blocked-note strong {
 		color: rgba(244, 241, 234, 0.8);
@@ -265,7 +178,15 @@
 		margin: 0;
 	}
 
-	/* ── Hero right: mockup ── */
+	.changelog-link {
+		font-size: 0.75rem;
+		color: rgba(244, 241, 234, 0.35);
+		text-decoration: none;
+		letter-spacing: 0.04em;
+		margin-top: -1rem;
+	}
+	.changelog-link:hover { color: rgba(244, 241, 234, 0.6); }
+
 	.hero-right {
 		display: flex;
 		align-items: center;
@@ -279,7 +200,6 @@
 
 	.mockup {
 		width: 360px;
-		border-radius: 12px;
 		overflow: hidden;
 		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(244, 241, 234, 0.08) inset;
 		border: 1px solid rgba(244, 241, 234, 0.1);
@@ -321,7 +241,6 @@
 	.mockup-icon {
 		width: 80px;
 		height: 80px;
-		border-radius: 18px;
 		background: #1a1a1a;
 		border: 1px solid rgba(244, 241, 234, 0.1);
 		display: flex;
@@ -351,148 +270,9 @@
 		letter-spacing: 0.03em;
 	}
 
-	/* ── Features ── */
-	.features {
-		max-width: 700px;
-		margin: 0 auto;
-		padding: 4rem 2rem;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.feature {
-		display: flex;
-		align-items: flex-start;
-		gap: 1rem;
-		padding: 1rem 1.2rem;
-		background: rgba(244, 241, 234, 0.02);
-		border: 1px solid rgba(244, 241, 234, 0.06);
-		border-radius: 10px;
-	}
-
-	.feat-icon {
-		font-size: 1.5rem;
-		flex-shrink: 0;
-		width: 36px;
-		text-align: center;
-	}
-
-	.feature h3 {
-		font-size: 0.88rem;
-		font-weight: 600;
-		margin: 0 0 0.2rem;
-		color: #f4f1ea;
-	}
-
-	.feature p {
-		font-size: 0.78rem;
-		color: rgba(244, 241, 234, 0.5);
-		margin: 0;
-		line-height: 1.4;
-	}
-
-	/* ── Browser calls ── */
-	.browser-calls {
-		max-width: 700px;
-		margin: 0 auto;
-		padding: 0 2rem 4rem;
-		text-align: center;
-	}
-
-	.eyebrow {
-		font-size: 0.68rem;
-		font-weight: 600;
-		letter-spacing: 0.22em;
-		color: rgba(244, 241, 234, 0.4);
-		margin: 0 0 1.2rem;
-	}
-
-	.call-options {
-		display: grid;
-		gap: 0.5rem;
-	}
-
-	.call-option {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.15rem;
-		padding: 14px 20px;
-		background: rgba(244, 241, 234, 0.02);
-		border: 1px solid rgba(244, 241, 234, 0.08);
-		border-radius: 10px;
-		color: #f4f1ea;
-		cursor: pointer;
-		transition: all 0.2s;
-		font-family: inherit;
-	}
-	.call-option:hover {
-		background: rgba(244, 241, 234, 0.06);
-		border-color: rgba(244, 241, 234, 0.2);
-		transform: translateY(-1px);
-	}
-	.option-title {
-		font-size: 0.78rem;
-		font-weight: 600;
-		letter-spacing: 0.18em;
-	}
-	.option-sub {
-		font-size: 0.7rem;
-		color: rgba(244, 241, 234, 0.4);
-		letter-spacing: 0.04em;
-	}
-
-	/* ── Changelog ── */
-	.changelog {
-		max-width: 700px;
-		margin: 0 auto;
-		padding: 0 2rem 4rem;
-	}
-
-	.changelog h4 {
-		font-size: 0.8rem;
-		font-weight: 600;
-		margin: 0 0 0.8rem;
-		color: rgba(244, 241, 234, 0.6);
-	}
-
-	.changelog ul {
-		margin: 0;
-		padding-left: 0;
-		list-style: none;
-	}
-	.changelog li {
-		font-size: 0.75rem;
-		color: rgba(244, 241, 234, 0.45);
-		line-height: 1.7;
-		padding-left: 1rem;
-		position: relative;
-	}
-	.changelog li::before {
-		content: '·';
-		position: absolute;
-		left: 0;
-		color: rgba(244, 241, 234, 0.25);
-		font-weight: 700;
-	}
-
-	.link {
-		display: inline-block;
-		margin-top: 0.8rem;
-		font-size: 0.72rem;
-		color: rgba(244, 241, 234, 0.4);
-		text-decoration: none;
-		letter-spacing: 0.04em;
-	}
-	.link:hover { color: rgba(244, 241, 234, 0.7); }
-
-	/* ── Footer ── */
 	.footer {
 		display: flex;
 		justify-content: center;
-		gap: 0.6rem;
-		align-items: center;
 		padding: 2rem;
 	}
 	.footer a {
@@ -502,9 +282,7 @@
 		letter-spacing: 0.06em;
 	}
 	.footer a:hover { color: rgba(244, 241, 234, 0.5); }
-	.dot-sep { color: rgba(244, 241, 234, 0.15); }
 
-	/* ── Mobile ── */
 	@media (max-width: 860px) {
 		.hero {
 			grid-template-columns: 1fr;
