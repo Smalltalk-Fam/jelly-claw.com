@@ -32,7 +32,7 @@
 				</svg>
 				Download for macOS
 			</a>
-			<p class="version">v1.4.0 · 3.0 MB · macOS 12+ · Apple Silicon</p>
+			<p class="version">v1.4.0 · 5.2 MB · macOS 12+ · Intel + Apple Silicon</p>
 			<a href="/download/changelog" class="changelog-link">Changelog &rarr;</a>
 		</div>
 
