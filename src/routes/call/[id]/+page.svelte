@@ -13,7 +13,8 @@
 	let myRole = $state('guest');
 
 	// --- State ---
-	let status = $state('connecting'); // connecting | waiting | connected | ended | error
+	// connecting | waiting | connected | reconnecting | ended | error
+	let status = $state('connecting');
 	let errorMessage = $state('');
 	let debugLog = $state(['init']);
 	let showDebug = $state(false);
@@ -40,6 +41,23 @@
 	let pcReady = false;
 	let pendingPeerJoined = false;
 	let keepaliveInterval = null;
+	let cachedIceServers = null; // remember TURN creds across reconnects
+
+	// --- Reconnection state ---
+	// Explicit user-ended flag so onclose doesn't try to resurrect the call.
+	let userEnded = false;
+	let reconnectAttempts = 0;
+	const MAX_RECONNECT_ATTEMPTS = 8;
+	let reconnectTimer = null;
+	// Pong watchdog: if we don't hear from the server for this long we kill the
+	// WS and let reconnect logic take over.
+	let lastPongAt = 0;
+	const PONG_TIMEOUT_MS = 35000; // 2x the 15s keepalive + some slack
+	// Track ICE restart in flight so we don't fire it repeatedly.
+	let iceRestartInFlight = false;
+	let disconnectedSince = 0;
+	const DISCONNECTED_GRACE_MS = 8000;
+	let disconnectedTimer = null;
 
 	function dbg(msg) {
 		console.log(`[call:${myRole}] ${msg}`);
@@ -98,29 +116,56 @@
 			}
 		}
 
-		// Connect to signaling server
+		openSignalingSocket();
+	}
+
+	function openSignalingSocket() {
+		if (userEnded) return;
+		if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+
 		const wsUrl = `${SIGNAL_BASE}/call/${callId}`;
-		dbg(`connecting ws: ${wsUrl}`);
+		const isReconnect = reconnectAttempts > 0;
+		dbg(`${isReconnect ? 'reconnecting' : 'connecting'} ws (attempt ${reconnectAttempts + 1}): ${wsUrl}`);
+
 		try {
 			ws = new WebSocket(wsUrl);
 		} catch (err) {
 			dbg(`ws constructor error: ${err.message}`);
-			status = 'error';
-			errorMessage = 'Failed to connect to signaling server.';
+			scheduleReconnect('constructor-failed');
 			return;
 		}
 
 		ws.onopen = () => {
-			dbg('ws connected, sending join');
-			ws.send(JSON.stringify({ type: 'join', role: myRole }));
-			status = 'waiting';
-			// Keepalive ping every 15s to prevent idle timeout
-			if (keepaliveInterval) clearInterval(keepaliveInterval);
-			keepaliveInterval = setInterval(() => {
-				if (ws && ws.readyState === WebSocket.OPEN) {
-					ws.send(JSON.stringify({ type: 'ping' }));
+			dbg('ws open, sending join');
+			reconnectAttempts = 0;
+			lastPongAt = Date.now();
+
+			// If we already have a live PC, rejoin signals to the peer that we're
+			// back. Otherwise it's a fresh join.
+			ws.send(JSON.stringify({ type: 'join', role: myRole, rejoin: pc ? true : false }));
+
+			// Recovering state after reconnect:
+			//   - PC still connected → nothing to do, media kept flowing.
+			//   - PC stalled/failed → host will kick ICE restart below.
+			//   - No PC yet → we're still in the initial handshake path.
+			if (status === 'reconnecting') {
+				if (pc && pc.connectionState === 'connected') {
+					status = 'connected';
+				} else if (pc) {
+					// Signaling is back but media wasn't — host pushes a restart offer,
+					// guest waits for the host's offer.
+					if (myRole === 'host') {
+						scheduleIceRestart('ws-reconnect');
+					}
+					// Leave status as 'reconnecting' until PC recovers.
+				} else {
+					status = 'waiting';
 				}
-			}, 15000);
+			} else if (status === 'connecting') {
+				status = 'waiting';
+			}
+
+			startKeepalive();
 		};
 
 		ws.onmessage = async (event) => {
@@ -133,12 +178,19 @@
 
 			switch (msg.type) {
 				case 'turn-credentials':
-					dbg('got turn credentials, setting up PC');
-					await setupPeerConnection(msg.iceServers);
-					if (pendingPeerJoined) {
-						pendingPeerJoined = false;
-						dbg('sending queued offer');
-						await sendOffer();
+					cachedIceServers = msg.iceServers;
+					// Only set up PC on first handshake. On reconnect we keep the
+					// existing PC and just use the fresh creds for any future restart.
+					if (!pc) {
+						dbg('got turn credentials, setting up PC');
+						await setupPeerConnection(msg.iceServers);
+						if (pendingPeerJoined) {
+							pendingPeerJoined = false;
+							dbg('sending queued offer');
+							await sendOffer();
+						}
+					} else {
+						dbg('refreshed turn credentials (PC already up)');
 					}
 					break;
 
@@ -146,8 +198,15 @@
 					dbg(`peer-joined: ${msg.role}, myRole=${myRole}, pcReady=${pcReady}`);
 					if (myRole === 'host') {
 						if (pcReady) {
-							dbg('sending offer now');
-							await sendOffer();
+							// If we already have a working PC (peer reconnected after a
+							// drop), re-offer with ICE restart so they can resync.
+							if (pc && pc.connectionState !== 'new' && pc.remoteDescription) {
+								dbg('peer re-joined, kicking ICE restart');
+								scheduleIceRestart('peer-rejoined');
+							} else {
+								dbg('sending offer now');
+								await sendOffer();
+							}
 						} else {
 							dbg('PC not ready, queueing offer');
 							pendingPeerJoined = true;
@@ -163,7 +222,11 @@
 				case 'answer':
 					dbg('received answer, setting remote desc');
 					if (pc && msg.sdp) {
-						await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: msg.sdp }));
+						try {
+							await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: msg.sdp }));
+						} catch (err) {
+							dbg(`setRemoteDescription(answer) failed: ${err.message}`);
+						}
 					}
 					break;
 
@@ -172,9 +235,13 @@
 					break;
 
 				case 'pong':
-					break; // keepalive response, ignore
+					lastPongAt = Date.now();
+					break;
 
 				case 'peer-left':
+					// The peer explicitly hung up — end the call.
+					dbg('peer-left, ending call');
+					userEnded = true;
 					status = 'ended';
 					stopTimer();
 					break;
@@ -187,30 +254,109 @@
 
 		ws.onerror = (e) => {
 			dbg(`ws error: ${e.type}`);
-			if (status === 'connecting') {
-				status = 'error';
-				errorMessage = 'Connection to signaling server failed.';
-			}
+			// Don't transition to terminal 'error' here — the onclose path decides
+			// whether to reconnect or give up. Surfacing 'error' during initial
+			// connect before onclose would prevent reconnect attempts.
 		};
 
 		ws.onclose = (e) => {
-			dbg(`ws closed: code=${e.code} reason=${e.reason}`);
-			if (status === 'connected' || status === 'waiting') {
-				status = 'ended';
-				stopTimer();
+			dbg(`ws closed: code=${e.code} reason=${e.reason || '(none)'}`);
+			stopKeepalive();
+			if (userEnded) return;
+
+			// Transient close during an active call → try to recover.
+			if (status !== 'error' && status !== 'ended') {
+				scheduleReconnect(`ws-close-${e.code}`);
 			}
 		};
 	}
 
-	async function sendOffer() {
+	function scheduleReconnect(reason) {
+		if (userEnded) return;
+		if (reconnectTimer) return; // already scheduled
+
+		reconnectAttempts++;
+		if (reconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
+			dbg(`reconnect exhausted (${reason})`);
+			status = 'error';
+			errorMessage = 'Connection lost. Please reload to try again.';
+			stopTimer();
+			return;
+		}
+
+		// Exponential backoff: 500ms, 1s, 2s, 4s, capped at 8s. Jitter ±25% to
+		// avoid thundering herd if both sides reconnect at once.
+		const base = Math.min(500 * 2 ** (reconnectAttempts - 1), 8000);
+		const jitter = base * (0.75 + Math.random() * 0.5);
+		const delay = Math.round(jitter);
+
+		if (status !== 'error') status = 'reconnecting';
+		dbg(`scheduling reconnect in ${delay}ms (reason=${reason}, attempt=${reconnectAttempts})`);
+		reconnectTimer = setTimeout(() => {
+			reconnectTimer = null;
+			openSignalingSocket();
+		}, delay);
+	}
+
+	function startKeepalive() {
+		stopKeepalive();
+		lastPongAt = Date.now();
+		keepaliveInterval = setInterval(() => {
+			if (!ws || ws.readyState !== WebSocket.OPEN) return;
+			// Pong watchdog: if the server has gone silent, force-close the WS
+			// so the reconnect path takes over instead of waiting on TCP timeout.
+			if (Date.now() - lastPongAt > PONG_TIMEOUT_MS) {
+				dbg('pong timeout, forcing ws close');
+				try { ws.close(4000, 'pong-timeout'); } catch {}
+				return;
+			}
+			try { ws.send(JSON.stringify({ type: 'ping' })); } catch {}
+		}, 15000);
+	}
+
+	function stopKeepalive() {
+		if (keepaliveInterval) {
+			clearInterval(keepaliveInterval);
+			keepaliveInterval = null;
+		}
+	}
+
+	async function sendOffer(opts = {}) {
 		if (!pc || !ws || ws.readyState !== WebSocket.OPEN) return;
 		try {
-			const offer = await pc.createOffer();
+			const offer = await pc.createOffer(opts.iceRestart ? { iceRestart: true } : undefined);
 			await pc.setLocalDescription(offer);
-			ws.send(JSON.stringify({ type: 'offer', sdp: offer.sdp }));
+			ws.send(JSON.stringify({ type: 'offer', sdp: offer.sdp, iceRestart: !!opts.iceRestart }));
 		} catch (err) {
 			console.error('Failed to create offer:', err);
+			dbg(`offer failed: ${err.message}`);
 		}
+	}
+
+	// ICE restart is host-only (the guest is answerer). Rate-limited so we
+	// don't pile up restarts when connectionstate flaps.
+	function scheduleIceRestart(reason) {
+		if (myRole !== 'host') {
+			dbg(`ice-restart skipped on guest (reason=${reason})`);
+			return;
+		}
+		if (iceRestartInFlight) {
+			dbg(`ice-restart already in flight, ignoring ${reason}`);
+			return;
+		}
+		if (!pc || !ws || ws.readyState !== WebSocket.OPEN) {
+			dbg(`ice-restart deferred (ws/pc not ready, reason=${reason})`);
+			return;
+		}
+		iceRestartInFlight = true;
+		dbg(`initiating ICE restart (reason=${reason})`);
+		sendOffer({ iceRestart: true })
+			.catch((err) => dbg(`ice-restart offer failed: ${err.message}`))
+			.finally(() => {
+				// Release the lock after a short grace so we don't spam restarts,
+				// but allow a subsequent restart if the new attempt also fails.
+				setTimeout(() => { iceRestartInFlight = false; }, 5000);
+			});
 	}
 
 	async function setupPeerConnection(iceServers) {
@@ -252,33 +398,61 @@
 		};
 
 		pc.onconnectionstatechange = () => {
-			dbg(`PC state: ${pc.connectionState}`);
-			if (pc.connectionState === 'connected') {
+			if (!pc) return;
+			const s = pc.connectionState;
+			dbg(`PC state: ${s}`);
+			if (s === 'connected') {
+				clearDisconnectedTimer();
+				disconnectedSince = 0;
+				iceRestartInFlight = false;
+				const wasRecovering = status === 'reconnecting';
 				status = 'connected';
-				startTimer();
-			} else if (pc.connectionState === 'disconnected') {
-				// Don't end the call — WebRTC often recovers from disconnected
+				if (!wasRecovering || !timerInterval) startTimer();
+			} else if (s === 'disconnected') {
+				// WebRTC often self-heals from 'disconnected'. Give it a grace
+				// window, then proactively restart ICE (host) or wait for host's
+				// restart offer (guest).
 				dbg('connection interrupted, waiting for recovery...');
-			} else if (pc.connectionState === 'failed') {
-				// Try ICE restart before giving up
+				if (status === 'connected') status = 'reconnecting';
+				disconnectedSince = Date.now();
+				clearDisconnectedTimer();
+				disconnectedTimer = setTimeout(() => {
+					if (!pc) return;
+					if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+						dbg(`still ${pc.connectionState} after grace, restarting ICE`);
+						scheduleIceRestart(`grace-${pc.connectionState}`);
+					}
+				}, DISCONNECTED_GRACE_MS);
+			} else if (s === 'failed') {
 				dbg('connection failed, attempting ICE restart');
-				if (pc && ws && ws.readyState === WebSocket.OPEN) {
-					pc.restartIce();
+				if (status !== 'ended') status = 'reconnecting';
+				// Host kicks a new offer with iceRestart=true. Guest can't do
+				// anything on its own — it needs a new offer from the host.
+				// If the WS is also down, the ws-reconnect path will trigger it.
+				if (ws && ws.readyState === WebSocket.OPEN) {
+					scheduleIceRestart('pc-failed');
 				} else {
-					status = 'error';
-					errorMessage = 'Connection failed. Please try again.';
+					dbg('ws not open, deferring ICE restart to ws reconnect');
 				}
 			}
 		};
 	}
 
+	function clearDisconnectedTimer() {
+		if (disconnectedTimer) {
+			clearTimeout(disconnectedTimer);
+			disconnectedTimer = null;
+		}
+	}
+
 	async function handleOffer(msg) {
 		if (!pc) {
 			// If we haven't set up the PC yet (no TURN credentials received), use default STUN
-			await setupPeerConnection(null);
+			await setupPeerConnection(cachedIceServers);
 		}
 
 		try {
+			if (msg.iceRestart) dbg('incoming offer is an ICE restart');
 			await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: msg.sdp }));
 			const answer = await pc.createAnswer();
 			await pc.setLocalDescription(answer);
@@ -292,8 +466,9 @@
 				);
 			}
 		} catch (err) {
-			status = 'error';
-			errorMessage = `Failed to handle offer: ${err.message}`;
+			// Don't tear the call down on a single bad offer — log it and let
+			// the next offer (or an ICE restart) recover.
+			dbg(`handleOffer failed: ${err.message}`);
 		}
 	}
 
@@ -340,12 +515,17 @@
 	}
 
 	function endCall() {
+		userEnded = true;
 		cleanup();
 		status = 'ended';
 	}
 
 	async function rejoinCall() {
 		cleanup();
+		// cleanup() sets userEnded=true to stop reconnect chatter during teardown;
+		// reset it (and the retry budget) so the fresh call can actually start.
+		userEnded = false;
+		reconnectAttempts = 0;
 		isMuted = false;
 		isCameraOff = false;
 		pcReady = false;
@@ -356,16 +536,19 @@
 	}
 
 	function cleanup() {
+		userEnded = true;
 		stopTimer();
-		if (keepaliveInterval) { clearInterval(keepaliveInterval); keepaliveInterval = null; }
+		stopKeepalive();
+		clearDisconnectedTimer();
+		if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
 
 		if (ws) {
-			ws.close();
+			try { ws.close(); } catch {}
 			ws = null;
 		}
 
 		if (pc) {
-			pc.close();
+			try { pc.close(); } catch {}
 			pc = null;
 		}
 
@@ -421,6 +604,8 @@
 			<span class="status-text">Connecting...</span>
 		{:else if status === 'waiting'}
 			<span class="status-text">{myRole === 'host' ? 'Waiting for guest...' : 'Waiting for host...'}</span>
+		{:else if status === 'reconnecting'}
+			<span class="status-text reconnecting-text">Reconnecting...</span>
 		{:else if status === 'ended'}
 			<span class="status-text ended-text">Call ended</span>
 		{:else if status === 'error'}
@@ -662,6 +847,16 @@
 
 	.error-text {
 		color: #ff6b6b;
+	}
+
+	.reconnecting-text {
+		color: #f5b301;
+		animation: reconnect-pulse 1.2s ease-in-out infinite;
+	}
+
+	@keyframes reconnect-pulse {
+		0%, 100% { opacity: 0.6; }
+		50% { opacity: 1; }
 	}
 
 	.rec-badge {
