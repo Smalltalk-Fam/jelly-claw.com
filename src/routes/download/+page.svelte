@@ -236,17 +236,15 @@
 	}
 
 	.mockup-icon {
-		width: 80px;
-		height: 80px;
-		background: #1a1a1a;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 	}
 	.mockup-icon img {
-		width: 52px;
-		height: 52px;
+		width: 72px;
+		height: 72px;
+		filter: grayscale(1) brightness(1.15) contrast(0.95);
+		opacity: 0.85;
 	}
 
 	.mockup-arrow {
