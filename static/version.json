@@ -1,6 +1,6 @@
 {
-  "version": "1.6.0",
+  "version": "1.7.0",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "New sidebar layout, Library with local recordings, Genie messaging overhaul, glass design"
+  "notes": "Borderless call windows, draggable panels, direct podcast recording, improved copy link, sidebar refresh"
 }
