@@ -50,7 +50,7 @@
 		<ul>
 			<li><strong>Group calls:</strong> Multi-party video calls via Cloudflare Realtime SFU. Up to 8 participants with unlimited spectators.</li>
 			<li><strong>Voice rooms:</strong> Audio-only group rooms with live listeners.</li>
-			<li><strong>Watch links:</strong> Share <code>/room/{id}/watch</code> links for anyone to spectate a group call from their browser.</li>
+			<li><strong>Watch links:</strong> Share <code>/room/&#123;id&#125;/watch</code> links for anyone to spectate a group call from their browser.</li>
 			<li><strong>SFU infrastructure:</strong> Two-phase publish (session first, tracks after ICE connects) for reliable WebRTC connections.</li>
 			<li><strong>Chat in calls:</strong> Live chat with tipping during group calls and voice rooms.</li>
 			<li><strong>Editorial UI:</strong> Backdrop, screenshot banner, and branded subdomain display on all call pages.</li>

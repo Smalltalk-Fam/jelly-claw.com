@@ -1,5 +1,6 @@
 {
-  "version": "1.4.0",
+  "version": "1.6.0",
   "url": "https://jelly-claw.com/download",
-  "notes": "Quick Jelly, Build Your Jelly Fam, Genie follow-ups, dispatch persistence"
+  "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
+  "notes": "New sidebar layout, Library with local recordings, Genie messaging overhaul, glass design"
 }

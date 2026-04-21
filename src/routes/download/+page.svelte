@@ -11,7 +11,7 @@
 				<span class="logo-text">Jelly-Claw</span>
 			</div>
 
-			<h1>Open Jelly-Claw<br />in 3 steps:</h1>
+			<h1>Install Jelly-Claw<br />in 3 steps:</h1>
 
 			<ol class="steps">
 				<li>Open your <strong>Downloads</strong></li>
@@ -19,12 +19,7 @@
 				<li>Drag to <strong>Applications</strong> — then launch from the menu bar</li>
 			</ol>
 
-			<p class="blocked-note">
-				macOS blocks the first launch.<br />
-				Go to <strong>System Settings &rarr; Privacy &amp; Security &rarr; Open Anyway</strong>.
-			</p>
-
-			<a href="/Jelly-Claw.dmg" download class="download-btn">
+<a href="/Jelly-Claw.dmg" download class="download-btn">
 				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 					<polyline points="7 10 12 15 17 10"></polyline>
@@ -32,8 +27,9 @@
 				</svg>
 				Download for macOS
 			</a>
-			<p class="version">v1.4.0 · 5.2 MB · macOS 12+ · Intel + Apple Silicon</p>
-			<a href="/download/changelog" class="changelog-link">Changelog &rarr;</a>
+			<p class="version">v1.6.1 · 3.9 MB · macOS 12+ · Intel + Apple Silicon</p>
+			<p class="agree">By downloading, you agree to our <a href="/terms" target="_blank" rel="noopener">Terms of Service</a>.</p>
+			<a href="/download/changelog" target="_blank" rel="noopener" class="changelog-link">Changelog &rarr;</a>
 		</div>
 
 		<div class="hero-right">
@@ -60,6 +56,10 @@
 
 	<div class="footer">
 		<a href="/">jelly-claw.com</a>
+		<span class="footer-sep">&middot;</span>
+		<a href="/terms" target="_blank" rel="noopener">Terms of Service</a>
+		<span class="footer-sep">&middot;</span>
+		<a href="/privacy" target="_blank" rel="noopener">Privacy</a>
 	</div>
 </div>
 
@@ -75,6 +75,10 @@
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		min-height: 90vh;
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
+		background: none;
 	}
 
 	.hero-left {
@@ -176,6 +180,19 @@
 		margin: 0;
 	}
 
+	.agree {
+		font-size: 0.68rem;
+		color: rgba(244, 241, 234, 0.25);
+		margin: 0;
+	}
+	.agree a {
+		color: rgba(244, 241, 234, 0.4);
+		text-decoration: underline;
+	}
+	.agree a:hover {
+		color: rgba(244, 241, 234, 0.6);
+	}
+
 	.changelog-link {
 		font-size: 0.75rem;
 		color: rgba(244, 241, 234, 0.35);
@@ -200,6 +217,8 @@
 		width: 360px;
 		overflow: hidden;
 		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+		border: none;
+		border-radius: 0;
 	}
 	.mockup-bar {
 		display: flex;
@@ -275,6 +294,9 @@
 		letter-spacing: 0.06em;
 	}
 	.footer a:hover { color: rgba(244, 241, 234, 0.5); }
+	.footer-sep {
+		color: rgba(244, 241, 234, 0.15);
+	}
 
 	@media (max-width: 860px) {
 		.hero {
