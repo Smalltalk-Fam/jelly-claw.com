@@ -166,6 +166,7 @@ wrangler deploy</pre>
                 <video
                   use:bindStream={stream}
                   autoplay
+                  muted
                   playsinline
                 ></video>
               {:else}
