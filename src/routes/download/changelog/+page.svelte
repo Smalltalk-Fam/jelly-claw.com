@@ -11,9 +11,41 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.7.0</h2>
+			<span class="date">April 21, 2026</span>
+			<a href="/Jelly-Claw.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Borderless call windows:</strong> 1:1 calls, group calls, and voice rooms now use clean borderless panels with no title bar. Camera and video fill the entire window.</li>
+			<li><strong>Draggable from anywhere:</strong> Click and drag anywhere on the call window to move it. Buttons still work normally.</li>
+			<li><strong>Windows no longer always-on-top:</strong> Call panels now behave like normal windows &mdash; you can put other windows in front of them.</li>
+			<li><strong>Direct podcast recording:</strong> Record button on 1:1 calls goes straight to full A/V podcast mode. No more intermediate picker.</li>
+			<li><strong>Hang-up closes window:</strong> Tapping end call now closes the call panel automatically on both 1:1 and group calls.</li>
+			<li><strong>FaceTime-style hang-up:</strong> Group call and voice room hang-up button moved to bottom-right with a FaceTime-style icon.</li>
+			<li><strong>Copy link redesign:</strong> Apple-style copy icon with green checkmark flash feedback when link is copied.</li>
+			<li><strong>Accessibility fix:</strong> Shortcuts now activate automatically after granting Accessibility permission &mdash; no more reinstall needed.</li>
+			<li><strong>Quick Genie audio save:</strong> Audio recordings from Quick Genie are saved to <code>~/Downloads/jelly-claw/genie/</code> with timestamps.</li>
+			<li><strong>Sidebar refresh:</strong> Cleaner sidebar with icons spaced evenly from top, jellyfish logo removed.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
+			<h2>v1.6.0</h2>
+			<span class="date">April 16, 2026</span>
+		</div>
+		<ul>
+			<li><strong>New sidebar layout:</strong> Redesigned sidebar with tab-based navigation for People, Genie, and Library.</li>
+			<li><strong>Library:</strong> Browse and play back local recordings from the app.</li>
+			<li><strong>Genie messaging overhaul:</strong> Improved Genie dispatch and chat integration.</li>
+			<li><strong>Glass design:</strong> Updated visual design with glass-morphism elements.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.4.0</h2>
 			<span class="date">April 15, 2026</span>
-			<a href="/Jelly-Claw.dmg" download class="dl-pill">Download</a>
 		</div>
 		<ul>
 			<li><strong>Recording audio fix:</strong> Call recordings now properly capture audio from both participants. Replaced Safari-incompatible MediaRecorder with ScriptProcessor PCM capture for reliable mixed audio. Posted Jellies now have sound and can be transcribed.</li>
