@@ -13,7 +13,7 @@
 		<div class="release-header">
 			<h2>v1.7.0</h2>
 			<span class="date">April 21, 2026</span>
-			<a href="/Jelly-Claw.dmg" download class="dl-pill">Download</a>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.0.dmg" download class="dl-pill">Download</a>
 		</div>
 		<ul>
 			<li><strong>Borderless call windows:</strong> 1:1 calls, group calls, and voice rooms now use clean borderless panels with no title bar. Camera and video fill the entire window.</li>
