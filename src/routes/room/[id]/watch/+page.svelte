@@ -13,6 +13,7 @@
   let chatMessages = $state([]);
   let chatInput = $state('');
   let selectedTip = $state(0);
+  let isMuted = $state(true);
   let status = $state('connecting');
   let errorText = $state('');
 
@@ -106,6 +107,12 @@
       e.preventDefault();
       sendChat();
     }
+  }
+
+  function toggleMute() {
+    isMuted = !isMuted;
+    // Update all video elements on the page
+    document.querySelectorAll('.tile video').forEach((v) => { v.muted = isMuted; });
   }
 
   async function copyWatchLink() {
@@ -237,6 +244,15 @@ wrangler deploy</pre>
     {:else}
       <a class="pill primary" href="/room/{roomId}">TAKE A SEAT ({roster.length}/8)</a>
     {/if}
+    <button class="pill" class:unmuted={!isMuted} on:click={toggleMute}>
+      {#if isMuted}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        UNMUTE
+      {:else}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        MUTE
+      {/if}
+    </button>
     <button class="pill" on:click={copyWatchLink}>COPY WATCH LINK</button>
   </footer>
 </div>
@@ -347,6 +363,9 @@ wrangler deploy</pre>
   .pill:hover { background: rgba(244, 241, 234, 0.06); }
   .pill.primary { background: #f4f1ea; color: #070707; border-color: transparent; }
   .pill.primary:hover { background: #fff; }
+  .pill.unmuted { background: rgba(40, 200, 64, 0.15); border-color: rgba(40, 200, 64, 0.4); color: #28c840; }
+  .pill.unmuted:hover { background: rgba(40, 200, 64, 0.25); }
+  .pill svg { margin-right: 6px; }
   .pill.disabled { opacity: 0.4; cursor: not-allowed; }
 
   @media (max-width: 720px) {
