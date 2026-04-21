@@ -116,7 +116,8 @@
 
   function bindStream(node, stream) {
     node.srcObject = stream;
-    return { update(n) { if (node.srcObject !== n) node.srcObject = n; } };
+    node.play().catch(() => {});
+    return { update(n) { if (node.srcObject !== n) { node.srcObject = n; node.play().catch(() => {}); } } };
   }
 </script>
 
