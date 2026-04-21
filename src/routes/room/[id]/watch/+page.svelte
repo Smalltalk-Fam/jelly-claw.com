@@ -20,7 +20,6 @@
   const watchLink = () =>
     typeof window !== 'undefined' ? `${window.location.origin}/room/${roomId}/watch` : '';
 
-  const roomFull = $derived(roster.length >= 8);
   const gridClass = $derived.by(() => {
     const n = roster.length;
     if (n <= 1) return 'grid-1';
@@ -237,13 +236,6 @@ wrangler deploy</pre>
   </main>
 
   <footer class="controls">
-    {#if roomFull}
-      <button class="pill disabled" disabled>
-        CALL IS FULL · 8/8
-      </button>
-    {:else}
-      <a class="pill primary" href="/room/{roomId}">TAKE A SEAT ({roster.length}/8)</a>
-    {/if}
     <button class="pill" class:unmuted={!isMuted} on:click={toggleMute}>
       {#if isMuted}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
