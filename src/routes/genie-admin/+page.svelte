@@ -145,6 +145,15 @@
 		return `${Math.floor(s / 86400)}d ago`;
 	}
 
+	function linkify(text) {
+		if (!text) return '';
+		return text.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+	}
+
+	function jellyLink(clipId) {
+		return `https://jellyjelly.com/watch/${clipId}`;
+	}
+
 	async function markAllDone() {
 		try {
 			await fetch(`${API_BASE}/genie/admin/mark-done`, {
@@ -294,19 +303,25 @@
 								<td colspan="7">
 									<div class="expanded-detail">
 										<div class="detail-section">
-											<span class="detail-label">CLIP ID</span>
-											<span class="mono">{d.clip_id}</span>
+											<span class="detail-label">CLIP</span>
+											<a href={jellyLink(d.clip_id)} target="_blank" rel="noopener" class="clip-link">{d.clip_id} ↗</a>
 										</div>
+										{#if d.creator_username}
+											<div class="detail-section">
+												<span class="detail-label">CREATOR</span>
+												<span>@{d.creator_username}</span>
+											</div>
+										{/if}
 										{#if d.transcript}
 											<div class="detail-section">
 												<span class="detail-label">FULL REQUEST</span>
-												<p class="transcript">{d.transcript}</p>
+												<p class="transcript">{@html linkify(d.transcript)}</p>
 											</div>
 										{/if}
 										{#if d.result}
 											<div class="detail-section">
 												<span class="detail-label">RESULT</span>
-												<p class="transcript">{d.result}</p>
+												<p class="transcript">{@html linkify(d.result)}</p>
 											</div>
 										{/if}
 										{#if d.error_message}
@@ -620,6 +635,9 @@
 
 	.expanded-row td { padding: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.06); }
 	.expanded-detail { padding: 12px 16px; background: rgba(255,255,255,0.02); }
+	.expanded-detail a, .clip-link { color: #8aa9f5; text-decoration: none; }
+	.expanded-detail a:hover, .clip-link:hover { text-decoration: underline; }
+	.transcript a { color: #8aa9f5; word-break: break-all; }
 	.detail-section { margin-bottom: 10px; }
 	.detail-label { display: block; font-size: 8px; font-weight: 600; letter-spacing: 1.6px; color: var(--muted); margin-bottom: 4px; }
 	.transcript { font-size: 11px; color: var(--ink); line-height: 1.5; white-space: pre-wrap; word-break: break-word; margin: 0; }
