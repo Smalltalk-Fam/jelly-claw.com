@@ -1,6 +1,6 @@
 {
-  "version": "1.7.6",
+  "version": "1.7.7",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Fix Claude -p diagnostic spawn, genie-server v1.4.0"
+  "notes": "Server start/stop/restart with loading indicators, full-width update banner with release notes"
 }
