@@ -66,16 +66,18 @@
 	{:else if wish}
 		<div class="wish-card">
 			<div class="top-bar">
-				<span class="status {wish.status}">{statusEmoji(wish.status)} {wish.status}</span>
+				<div></div>
 				<span class="jellyfish">🪼</span>
 			</div>
 
 			<h1>{wish.title}</h1>
+
 			<div class="meta">
 				{#if wish.creator_username}
 					<span class="creator">@{wish.creator_username}</span>
 				{/if}
 				<span class="time">{timeAgo(wish.created_at)}</span>
+				<span class="status {wish.status}">{statusEmoji(wish.status)} {wish.status}</span>
 			</div>
 
 			{#if wish.transcript}
@@ -166,15 +168,19 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 16px;
+		margin-bottom: 8px;
 	}
 	.jellyfish { font-size: 24px; }
 	h1 {
 		font-size: 20px;
 		font-weight: 500;
-		margin: 0 0 8px;
-		line-height: 1.3;
+		margin: 0 0 12px;
+		line-height: 1.35;
 		width: 100%;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
 	}
 	.meta {
 		display: flex;
@@ -194,6 +200,9 @@
 	.status.running { color: #8aa9f5; }
 	.status.errored { color: #ea8238; }
 
+	.meta {
+		margin-bottom: 24px;
+	}
 	.section {
 		margin-bottom: 20px;
 	}
