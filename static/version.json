@@ -1,6 +1,6 @@
 {
-  "version": "1.8.2",
+  "version": "1.8.3",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Live chat in wishes, stop/cancel fix, Claude CLI auto-install, API key provisioning fix"
+  "notes": "Quick Jelly: send as unlisted, no review screen, sender names in chat, auto-fix Claude CLI, stop/cancel improvements"
 }

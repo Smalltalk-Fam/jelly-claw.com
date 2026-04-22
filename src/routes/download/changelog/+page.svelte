@@ -11,6 +11,23 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.8.3</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.3.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Quick Jelly redesign:</strong> "Send Jelly" button, posts as unlisted by default, skips photo review. Shows hints about Genie activation.</li>
+			<li><strong>Chat sender names:</strong> Each message shows "Genie" or the user's name. Uses user_id detection instead of content prefixes.</li>
+			<li><strong>System messages filtered:</strong> "joined the group" and similar messages hidden from chat.</li>
+			<li><strong>Follow-ups hidden:</strong> "Re:" dispatches no longer show as separate wish cards.</li>
+			<li><strong>Auto-fix Claude CLI:</strong> On every launch, checks if GENIE_CLAUDE_BIN points to our local install. Auto-installs if missing, fixes path if wrong.</li>
+			<li><strong>Stop/cancel fix:</strong> Now works on follow-up dispatches. Bypasses message queue. Direct routing via local /chat endpoint.</li>
+			<li><strong>Stale VIEW JELLY fix:</strong> jellyURL reset before each upload.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.8.2</h2>
 			<span class="date">April 22, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.2.dmg" download class="dl-pill">Download</a>
