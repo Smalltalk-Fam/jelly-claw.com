@@ -11,6 +11,20 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.7.2</h2>
+			<span class="date">April 21, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.2.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Activity log:</strong> Genie tab now shows live status messages — server sync, auth, API key provisioning — so you can see what's happening on launch.</li>
+			<li><strong>Server auto-sync fix:</strong> Server restart after API key provisioning ensures new installs work immediately without manual restart.</li>
+			<li><strong>Diagnostics fallback:</strong> "Run Diagnostics" now falls back gracefully on older server versions instead of showing "Not responding".</li>
+			<li><strong>Genie server v1.2.0:</strong> Bumped to trigger auto-sync on existing installs, delivering the /health endpoint and API key fixes.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.7.1</h2>
 			<span class="date">April 21, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.1.dmg" download class="dl-pill">Download</a>

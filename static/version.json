@@ -1,6 +1,6 @@
 {
-  "version": "1.7.1",
+  "version": "1.7.2",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Genie diagnostics, API key fix for new installs, health check, grant wishes, universal binary"
+  "notes": "Genie diagnostics, API key fix, activity log, server auto-sync"
 }
