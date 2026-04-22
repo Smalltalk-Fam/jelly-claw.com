@@ -11,6 +11,21 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.8.1</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.1.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Auto-transcription:</strong> Quick Jelly recordings are automatically transcribed using Apple Speech Recognition. Saves transcript.txt and subtitles.srt alongside each audio file.</li>
+			<li><strong>Library transcripts:</strong> Recordings with transcripts show an expand button — tap to read the full transcript inline, like a voice note.</li>
+			<li><strong>Organized recordings:</strong> Each Quick Jelly saves to its own folder (genie-{timestamp}/) with the audio file named to match.</li>
+			<li><strong>Personalized wish URLs:</strong> Wish links use {username}.jelly-claw.com/genie/{id} subdomain format.</li>
+			<li><strong>Wish pages:</strong> Public wish detail pages with linkified results and "Watch on JellyJelly" button.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.8.0</h2>
 			<span class="date">April 22, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.0.dmg" download class="dl-pill">Download</a>

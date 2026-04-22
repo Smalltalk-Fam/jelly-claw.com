@@ -1,6 +1,6 @@
 {
-  "version": "1.8.0",
+  "version": "1.8.1",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Settings redesign, Telegram QR codes, dispatch creator tracking, Quick Jelly rename, Home tab, PiP fix"
+  "notes": "Auto-transcription for Quick Jelly recordings, expandable transcripts in Library, personalized wish URLs"
 }
