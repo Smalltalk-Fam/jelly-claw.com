@@ -11,6 +11,25 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.8.0</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.0.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Settings redesign:</strong> Cleaner cards, consistent widths, full-width buttons. Audio input and About sections in proper cards. Quit button styled.</li>
+			<li><strong>Genie tab redesign:</strong> Wishes in all-caps header, cards with genie icon and sparkle for completed, compact server status bar with start/stop/restart.</li>
+			<li><strong>Notifications card:</strong> Jelly Chat and Telegram combined in one card. Disconnect Telegram button. Inline Telegram setup with QR codes for BotFather and userinfobot.</li>
+			<li><strong>Tools card:</strong> View Logs, Clear Logs, Full Debug as icon buttons. Uninstall as full-width button.</li>
+			<li><strong>Quick Jelly:</strong> Renamed from Quick Genie. Jellyfish emoji on Home tab. Popover auto-closes when shortcut triggers.</li>
+			<li><strong>Home tab:</strong> Renamed from People. House icon. Shortcut activation banner at bottom.</li>
+			<li><strong>PiP fix:</strong> Call window dragging no longer blocks WebView interactions (PiP, video controls).</li>
+			<li><strong>Dispatch tracking:</strong> Creator username now synced to Supabase on every wish. Status updates in real-time.</li>
+			<li><strong>Telegram fix:</strong> Chat ID sent as number, whitespace trimmed, error messages logged to activity feed.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.7.7</h2>
 			<span class="date">April 22, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.7.dmg" download class="dl-pill">Download</a>
