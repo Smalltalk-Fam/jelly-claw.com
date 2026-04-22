@@ -11,6 +11,21 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.8.2</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.2.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Live chat in wishes:</strong> Open a wish to see real-time chat with Genie. Type replies, send stop/cancel, follow up — all synced with JellyChat.</li>
+			<li><strong>Stop/cancel fix:</strong> "stop" now bypasses the message queue and kills the process immediately. Works on follow-up dispatches too.</li>
+			<li><strong>Claude CLI auto-install:</strong> App installs its own Claude CLI instead of relying on the user's Homebrew version. Fixes "--bare unknown option" on older installs.</li>
+			<li><strong>API key fix:</strong> Provisioning now writes to .env even when config.genieRepoDir is unset.</li>
+			<li><strong>Local /chat endpoint:</strong> Mac app sends messages through the local genie-server for instant processing instead of WebSocket detection.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.8.1</h2>
 			<span class="date">April 22, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.1.dmg" download class="dl-pill">Download</a>

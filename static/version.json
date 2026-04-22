@@ -1,6 +1,6 @@
 {
-  "version": "1.8.1",
+  "version": "1.8.2",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Auto-transcription for Quick Jelly recordings, expandable transcripts in Library, personalized wish URLs"
+  "notes": "Live chat in wishes, stop/cancel fix, Claude CLI auto-install, API key provisioning fix"
 }
