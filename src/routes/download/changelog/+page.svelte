@@ -11,6 +11,42 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.7.7</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.7.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Server controls:</strong> Start, stop, and restart buttons with loading indicators. Restart syncs server files and restarts from scratch.</li>
+			<li><strong>Update banner redesign:</strong> Full-width banner below masthead with release notes and prominent install button. Visible on all tabs.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
+			<h2>v1.7.6</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.6.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Claude -p spawn fix:</strong> Fixed diagnostic test failing with cwd error by setting explicit working directory.</li>
+			<li><strong>Force restart on sync:</strong> Server always stops and restarts after file sync, fixing stale processes after update.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
+			<h2>v1.7.5</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.5.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Claude CLI reinstall:</strong> "Install Claude CLI" button appears in diagnostics when Claude is missing.</li>
+			<li><strong>Diagnostics use GENIE_CLAUDE_BIN:</strong> Health checks now use the same binary path as the dispatcher.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.7.4</h2>
 			<span class="date">April 22, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.4.dmg" download class="dl-pill">Download</a>
