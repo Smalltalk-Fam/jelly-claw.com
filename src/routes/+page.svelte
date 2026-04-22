@@ -2,18 +2,6 @@
   let { data } = $props();
   const profile = data?.profile;
 
-  const attendees = [
-    '@iqramjelly',
-    '@clawangel',
-    '@wetlookwire',
-    '@softroboticsclub',
-    '@shelldrip',
-    '@oceanfeed',
-    '@chatdevdarling',
-    '@jellysignal',
-    '@lobster.fm',
-  ]
-
   const principles = [
     {
       name: 'Signal Over Scroll',
@@ -288,7 +276,7 @@
         <a class="primary" href="mailto:hello@jelly-claw.com?subject=Jelly%20Claw%20Registration">
           Join The List
         </a>
-        <a class="secondary" href="#manifesto">Read The Manifesto</a>
+        <a class="secondary" href="/models">Model Agency</a>
       </div>
     </div>
 
@@ -326,30 +314,6 @@
         and turn attention into collaboration. Less doomscrolling. More direction.
       </p>
     </div>
-  </section>
-
-  <section class="attending" id="attending" aria-label="Attending">
-    <p class="eyebrow">Early Signal</p>
-    <div class="ticker">
-      <div class="ticker-track">
-        {#each [...attendees, ...attendees, ...attendees] as attendee}
-          <span>{attendee}</span>
-        {/each}
-      </div>
-    </div>
-  </section>
-
-  <section class="closing">
-    <p class="eyebrow">Entry Policy</p>
-    <h2>Private room. Editorial taste. No doomscroll energy.</h2>
-    <p>
-      Jelly Claw is for people building a more intentional social layer for culture, work, and the
-      internet after the feed.
-    </p>
-    <a class="primary" href="mailto:hello@jelly-claw.com?subject=Jelly%20Claw%20Registration">
-      Request Access
-    </a>
-    <a class="agency-link" href="/models">Learn about our Model Agency →</a>
   </section>
 </div>
 
