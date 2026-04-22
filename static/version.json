@@ -1,6 +1,6 @@
 {
-  "version": "1.7.4",
+  "version": "1.7.5",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Server sync fix, update banner on all tabs, genie-server v1.3.0"
+  "notes": "Claude CLI auto-install fix, diagnostics use correct binary path, genie-server v1.3.0"
 }
