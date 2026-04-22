@@ -1,6 +1,6 @@
 {
-  "version": "1.7.5",
+  "version": "1.7.6",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Claude CLI auto-install fix, diagnostics use correct binary path, genie-server v1.3.0"
+  "notes": "Fix Claude -p diagnostic spawn, genie-server v1.4.0"
 }
