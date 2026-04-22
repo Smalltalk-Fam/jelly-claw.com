@@ -65,18 +65,17 @@
 		</div>
 	{:else if wish}
 		<div class="wish-card">
-			<div class="header">
-				<span class="emoji">🧞</span>
-				<div class="header-text">
-					<h1>{wish.title}</h1>
-					<div class="meta">
-						{#if wish.creator_username}
-							<span class="creator">@{wish.creator_username}</span>
-						{/if}
-						<span class="time">{timeAgo(wish.created_at)}</span>
-						<span class="status {wish.status}">{statusEmoji(wish.status)} {wish.status}</span>
-					</div>
-				</div>
+			<div class="top-bar">
+				<span class="status {wish.status}">{statusEmoji(wish.status)} {wish.status}</span>
+				<span class="jellyfish">🪼</span>
+			</div>
+
+			<h1>{wish.title}</h1>
+			<div class="meta">
+				{#if wish.creator_username}
+					<span class="creator">@{wish.creator_username}</span>
+				{/if}
+				<span class="time">{timeAgo(wish.created_at)}</span>
 			</div>
 
 			{#if wish.transcript}
@@ -88,7 +87,7 @@
 
 			{#if wish.result}
 				<div class="section">
-					<div class="label">RESULT</div>
+					<div class="label">🧞 RESULT</div>
 					<p class="body">{@html linkify(wish.result)}</p>
 				</div>
 			{/if}
@@ -163,19 +162,19 @@
 		padding: 28px;
 	}
 
-	.header {
+	.top-bar {
 		display: flex;
-		gap: 14px;
-		align-items: flex-start;
-		margin-bottom: 24px;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 16px;
 	}
-	.emoji { font-size: 28px; }
-	.header-text { flex: 1; }
+	.jellyfish { font-size: 24px; }
 	h1 {
-		font-size: 18px;
+		font-size: 20px;
 		font-weight: 500;
-		margin: 0 0 6px;
+		margin: 0 0 8px;
 		line-height: 1.3;
+		width: 100%;
 	}
 	.meta {
 		display: flex;
