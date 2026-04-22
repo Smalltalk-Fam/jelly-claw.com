@@ -1,6 +1,6 @@
 {
-  "version": "1.7.0",
+  "version": "1.7.1",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Borderless call windows, draggable panels, direct podcast recording, improved copy link, sidebar refresh"
+  "notes": "Genie diagnostics, API key fix for new installs, health check, grant wishes, universal binary"
 }

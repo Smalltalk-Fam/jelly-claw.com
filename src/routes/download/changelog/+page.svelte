@@ -11,6 +11,23 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.7.1</h2>
+			<span class="date">April 21, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.1.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Genie diagnostics:</strong> "Run Diagnostics" button in Genie settings checks Node, Claude CLI, claude -p spawn, Chrome CDP, auth token, and polling status with green/orange indicators.</li>
+			<li><strong>API key fix:</strong> Fixed a bug where the Anthropic API key was not returned on JWT fallback, causing Genie to silently fail on new installs after token expiry.</li>
+			<li><strong>Grant wishes:</strong> Admin UI to search users and grant Genie wishes. Recipients get a DM notification from Genie.</li>
+			<li><strong>Universal Binary:</strong> App now ships as arm64 + x86_64, supporting both Apple Silicon and Intel Macs.</li>
+			<li><strong>Quick Jelly recording:</strong> 10-minute max with 30-second countdown warning. Background recorder suspends during Quick Jelly.</li>
+			<li><strong>Connected services:</strong> Genie settings now show CLI tools (GitHub, Vercel, Wrangler, Stripe, Claude) with auth status and usernames alongside browser sessions. Loading indicator while fetching.</li>
+			<li><strong>Racct.com:</strong> Added as a connected service.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.7.0</h2>
 			<span class="date">April 21, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.0.dmg" download class="dl-pill">Download</a>
