@@ -11,6 +11,22 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.8.4</h2>
+			<span class="date">April 23, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.4.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Server sync fix:</strong> All genie-server changes now verified in-sync before deploy. Fixes "something went wrong" on other machines caused by stale server code.</li>
+			<li><strong>Live chat:</strong> Wish detail view shows real-time chat with Genie. Type replies, send stop/cancel directly.</li>
+			<li><strong>Stop/cancel:</strong> Bypasses message queue, works on follow-up dispatches, routes through local /chat endpoint.</li>
+			<li><strong>Claude CLI:</strong> Auto-installs our own version on every launch. Fixes old Homebrew Claude "--bare unknown option" errors.</li>
+			<li><strong>Receipt fix:</strong> "Wish granted" receipts now deliver correctly (creator variable was missing).</li>
+			<li><strong>Chat improvements:</strong> Sender names shown, system messages filtered, follow-ups hidden from wish list.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.8.3</h2>
 			<span class="date">April 22, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.3.dmg" download class="dl-pill">Download</a>
