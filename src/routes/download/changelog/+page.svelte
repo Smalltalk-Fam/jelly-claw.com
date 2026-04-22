@@ -11,6 +11,21 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.7.3</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.3.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Debug page:</strong> Full diagnostic page at localhost:7778/debug — system info, auth status, Claude spawn test, Chrome CDP, recent logs. Accessible via "FULL DEBUG" link in Genie settings.</li>
+			<li><strong>Activity log card:</strong> Genie settings now shows a styled activity log with line numbers, copy button, and debug link.</li>
+			<li><strong>Launch logging:</strong> App version, server sync status, auth sync, and API key provisioning all logged to the activity feed.</li>
+			<li><strong>Sync guard logging:</strong> Activity log now explains why server sync was skipped (setup incomplete, bundled server not found).</li>
+			<li><strong>API key hidden:</strong> Debug page shows "set" instead of key prefix.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.7.2</h2>
 			<span class="date">April 21, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.2.dmg" download class="dl-pill">Download</a>
