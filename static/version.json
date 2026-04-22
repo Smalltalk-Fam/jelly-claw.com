@@ -1,6 +1,6 @@
 {
-  "version": "1.7.3",
+  "version": "1.7.4",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Debug page, activity log improvements, sync logging"
+  "notes": "Server sync fix, update banner on all tabs, genie-server v1.3.0"
 }

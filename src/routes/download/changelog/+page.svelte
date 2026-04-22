@@ -11,6 +11,18 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.7.4</h2>
+			<span class="date">April 22, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.4.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Server sync fix:</strong> Bumped genie-server to v1.3.0 to force sync on machines that had v1.2.0 from previous update.</li>
+			<li><strong>Update banner:</strong> Moved to the masthead so it's visible on all tabs, not just People.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.7.3</h2>
 			<span class="date">April 22, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.7.3.dmg" download class="dl-pill">Download</a>
