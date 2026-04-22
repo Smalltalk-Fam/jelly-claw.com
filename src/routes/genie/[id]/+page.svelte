@@ -177,10 +177,6 @@
 		margin: 0 0 12px;
 		line-height: 1.35;
 		width: 100%;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
 	}
 	.meta {
 		display: flex;
