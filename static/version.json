@@ -1,6 +1,6 @@
 {
-  "version": "1.8.4",
+  "version": "1.8.5",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Server sync fix, stop/cancel improvements, live chat, Claude CLI auto-fix, receipt delivery fix"
+  "notes": "TEST GENIE button for debugging, genie-server v1.10.0"
 }
