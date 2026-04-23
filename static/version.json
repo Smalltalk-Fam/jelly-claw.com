@@ -1,6 +1,6 @@
 {
-  "version": "1.9.2",
+  "version": "1.9.3",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Critical fix: bot token and API key now persist in .env on all machines, export debug button"
+  "notes": "Export debug info, open .jellygenie folder in Finder"
 }

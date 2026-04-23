@@ -27,7 +27,7 @@
 				</svg>
 				Download for macOS
 			</a>
-			<p class="version">v1.9.2 · 3.9 MB · macOS 12+ · Intel + Apple Silicon</p>
+			<p class="version">v1.9.3 · 3.9 MB · macOS 12+ · Intel + Apple Silicon</p>
 			<p class="agree">By downloading, you agree to our <a href="/terms" target="_blank" rel="noopener">Terms of Service</a>.</p>
 			<a href="/download/changelog" target="_blank" rel="noopener" class="changelog-link">Changelog &rarr;</a>
 		</div>
