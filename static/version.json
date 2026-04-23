@@ -1,6 +1,6 @@
 {
-  "version": "1.9.0",
+  "version": "1.9.1",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Chromium browser, Create Reel, Your Jellies grid, chat redesign, Telegram setup, FFmpeg, stop/cancel fixes"
+  "notes": "Bot token provisioning fix, server versioning, model preference, Chromium migration, cleanse & reinstall"
 }
