@@ -11,6 +11,24 @@
 
 	<section class="release current">
 		<div class="release-header">
+			<h2>v1.9.0</h2>
+			<span class="date">April 23, 2026</span>
+			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.9.0.dmg" download class="dl-pill">Download</a>
+		</div>
+		<ul>
+			<li><strong>Chromium browser:</strong> Genie uses standalone Chromium — no Chrome profile conflicts.</li>
+			<li><strong>Create Reel:</strong> Select jellies, pick duration, Genie edits with FFmpeg.</li>
+			<li><strong>Your Jellies:</strong> Thumbnail grid with infinite scroll in Library.</li>
+			<li><strong>Chat redesign:</strong> Dark cards, timestamps, clickable links, copy buttons.</li>
+			<li><strong>Telegram:</strong> 3-step setup with QR codes, bot name display, disconnect.</li>
+			<li><strong>Stop/cancel:</strong> Works on follow-ups, bypasses queue, local /chat endpoint.</li>
+			<li><strong>Full results:</strong> No truncation on wish results.</li>
+			<li><strong>Claude fix:</strong> Removed --bare flag, auto-install CLI, auto-fix path.</li>
+		</ul>
+	</section>
+
+	<section class="release">
+		<div class="release-header">
 			<h2>v1.8.4</h2>
 			<span class="date">April 23, 2026</span>
 			<a href="https://pub-c94364582fb0435696f1f9966ea32615.r2.dev/Jelly-Claw-1.8.4.dmg" download class="dl-pill">Download</a>

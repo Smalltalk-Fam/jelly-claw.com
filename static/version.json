@@ -1,6 +1,6 @@
 {
-  "version": "1.8.6",
+  "version": "1.9.0",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Critical fix: removed --bare flag that broke Claude on all non-dev machines"
+  "notes": "Chromium browser, Create Reel, Your Jellies grid, chat redesign, Telegram setup, FFmpeg, stop/cancel fixes"
 }
