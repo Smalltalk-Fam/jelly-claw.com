@@ -1,6 +1,6 @@
 {
-  "version": "1.9.3",
+  "version": "1.9.4",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Export debug info, open .jellygenie folder in Finder"
+  "notes": "Bot token fix, billing upgrade message, debug export, Chrome→Browser rename, genie-server v1.14.0"
 }
