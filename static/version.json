@@ -1,6 +1,6 @@
 {
-  "version": "1.9.1",
+  "version": "1.9.2",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Bot token provisioning fix, server versioning, model preference, Chromium migration, cleanse & reinstall"
+  "notes": "Critical fix: bot token and API key now persist in .env on all machines, export debug button"
 }
