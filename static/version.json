@@ -1,6 +1,6 @@
 {
-  "version": "1.8.5",
+  "version": "1.8.6",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "TEST GENIE button for debugging, genie-server v1.10.0"
+  "notes": "Critical fix: removed --bare flag that broke Claude on all non-dev machines"
 }
