@@ -1,6 +1,6 @@
 {
-  "version": "1.9.5",
+  "version": "1.9.6",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Mac Mini crash fix, cooking status, personalized wish grants, App/Server folder buttons"
+  "notes": "Genie UI redesign, public wishes feed, ⌘⌘ shortcut, Chromium-only browser, reply queue fix, WebSocket-only chat"
 }
