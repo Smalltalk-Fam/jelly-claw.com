@@ -1,6 +1,6 @@
 {
-  "version": "1.9.8",
+  "version": "1.9.9",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Diagnostics FIX buttons, Enter key on onboarding, library redesign"
+  "notes": "Setup debugging: live activity log, permission checks, quarantine fix, system Node fallback"
 }
