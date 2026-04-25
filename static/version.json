@@ -1,6 +1,6 @@
 {
-  "version": "1.9.7",
+  "version": "1.9.8",
   "url": "https://jelly-claw.com/download",
   "dmg": "https://jelly-claw.com/Jelly-Claw.dmg",
-  "notes": "Chat rewrite, security restrictions, public feed, grant wishes DM, library redesign, token architecture fix"
+  "notes": "Diagnostics FIX buttons, Enter key on onboarding, library redesign"
 }
