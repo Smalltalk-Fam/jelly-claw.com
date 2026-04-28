@@ -19,6 +19,7 @@
     "wrangler": "^4.20.0"
   },
   "dependencies": {
-    "@sveltejs/adapter-auto": "^7.0.1"
+    "@sveltejs/adapter-auto": "^7.0.1",
+    "html2canvas": "^1.4.1"
   }
 }
